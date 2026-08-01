@@ -2,4 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/AgentReview.McpServers.StaticAnalysis/AgentReview.McpServers.StaticAnalysis.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AgentReview.Tests/AgentReview.Tests.csproj" />
+  </Folder>
 </Solution>
