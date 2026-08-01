@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "static-analysis": {
+      "command": "dotnet",
+      "args": ["run", "--project", "src/AgentReview.McpServers.StaticAnalysis"]
+    }
+  }
+}
