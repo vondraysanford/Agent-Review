@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AgentReview.McpServers.StaticAnalysis/AgentReview.McpServers.StaticAnalysis.csproj" />
+  </Folder>
+</Solution>

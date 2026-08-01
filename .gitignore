@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+
+# Agent instructions (employer context, stays local)
+CLAUDE.md
+
+# .NET build output
+bin/
+obj/
+artifacts/
+*.binlog
+
+# IDE / editor state
+.vs/
+.idea/
+*.user
+
+# Test results
+TestResults/
+*.trx
+
+# Local config and secrets (user-secrets live outside the repo already)
+.env
+*.local.json
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Node (dashboard phase, later)
+node_modules/
