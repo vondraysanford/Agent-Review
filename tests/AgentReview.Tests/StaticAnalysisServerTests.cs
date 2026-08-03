@@ -6,17 +6,18 @@ namespace AgentReview.Tests;
 
 public class StaticAnalysisServerTests
 {
-    // Checklist item 1 state: the server connects with zero tools. This flips
-    // to asserting the expected tools once analyze_csharp lands in item 2.
     [Fact]
-    public void ServerAssembly_ExposesNoMcpToolsYet()
+    public void ServerAssembly_ExposesAnalyzeCsharpTool()
     {
         var assembly = Assembly.Load("AgentReview.McpServers.StaticAnalysis");
 
-        var toolTypes = assembly.GetTypes()
+        var toolNames = assembly.GetTypes()
             .Where(t => t.GetCustomAttribute<McpServerToolTypeAttribute>() is not null)
+            .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Static))
+            .Select(m => m.GetCustomAttribute<McpServerToolAttribute>()?.Name)
+            .Where(n => n is not null)
             .ToList();
 
-        Assert.Empty(toolTypes);
+        Assert.Contains("analyze_csharp", toolNames);
     }
 }
