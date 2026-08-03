@@ -10,8 +10,23 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.6.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.6.0" />
+    <!-- Analyzer DLLs are loaded at runtime against user-supplied code, not
+         applied to this project's own build (ExcludeAssets), and copied to the
+         output so the server never depends on the NuGet cache location. -->
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.302" ExcludeAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.10" />
     <PackageReference Include="ModelContextProtocol" Version="2.0.0" />
+  </ItemGroup>
+
+  <!-- Named explicitly: in this package "analyzers/dotnet/cs" is both the C#
+       folder and the Czech locale folder, so a glob drags in satellite DLLs. -->
+  <ItemGroup>
+    <None Include="$(PkgMicrosoft_CodeAnalysis_NetAnalyzers)/analyzers/dotnet/Microsoft.CodeAnalysis.NetAnalyzers.dll"
+          CopyToOutputDirectory="PreserveNewest"
+          Link="netanalyzers/%(Filename)%(Extension)" />
+    <None Include="$(PkgMicrosoft_CodeAnalysis_NetAnalyzers)/analyzers/dotnet/cs/Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll"
+          CopyToOutputDirectory="PreserveNewest"
+          Link="netanalyzers/%(Filename)%(Extension)" />
   </ItemGroup>
 
 </Project>

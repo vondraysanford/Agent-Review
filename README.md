@@ -84,7 +84,7 @@ Phases are sized for weekends. One checklist item at a time; small, explainable 
 The first artifact is a working MCP server, not an agent. A server drops into Claude Code on day one and is demoable by itself; a tool-less agent is just a prompt.
 
 - [x] `AgentReview.McpServers.StaticAnalysis` project: MCP server via the official C# SDK (verified 2026-08-02: answers `initialize` over stdio, connects in Claude Code via `.mcp.json`, zero tools yet)
-- [ ] `analyze_csharp(code)` tool backed by Roslyn analyzers, returning structured findings
+- [x] `analyze_csharp(code)` tool backed by Roslyn analyzers, returning structured findings (verified 2026-08-03 in Claude Code: compiler diagnostics and NetAnalyzers CA rules, planted issues return CS0219, CS0162, and CA2000 with positions)
 - [ ] `run_semgrep(code, ruleset)` tool for polyglot security rules
 - [ ] Verified end-to-end inside Claude Code: tools listed, calls succeed, findings come back structured
 - [ ] Demo GIF of Claude Code using the server

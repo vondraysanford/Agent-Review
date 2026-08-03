@@ -43,9 +43,28 @@ public class CSharpAnalyzerTests
     public void CleanCode_ReturnsNoFindings()
     {
         var findings = CSharpAnalyzer.Analyze(
-            "public class Clean { public int Add(int a, int b) => a + b; }");
+            "public static class Clean { public static int Add(int a, int b) => a + b; }");
 
         Assert.Empty(findings);
+    }
+
+    [Fact]
+    public void PlantedDisposableLeak_ReportsCaFinding()
+    {
+        // An abandoned disposable local; CA2000's flow analysis skips subtler
+        // shapes (e.g. returning stream.Length), verified against the analyzer.
+        var findings = CSharpAnalyzer.Analyze("""
+            public class Leaky
+            {
+                public void Open(string path)
+                {
+                    var stream = new System.IO.FileStream(path, System.IO.FileMode.Open);
+                    System.Console.WriteLine(path);
+                }
+            }
+            """);
+
+        Assert.Contains(findings, f => f.RuleId == "CA2000");
     }
 
     [Fact]
