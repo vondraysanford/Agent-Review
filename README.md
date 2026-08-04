@@ -86,7 +86,7 @@ The first artifact is a working MCP server, not an agent. A server drops into Cl
 - [x] `AgentReview.McpServers.StaticAnalysis` project: MCP server via the official C# SDK (verified 2026-08-02: answers `initialize` over stdio, connects in Claude Code via `.mcp.json`, zero tools yet)
 - [x] `analyze_csharp(code)` tool backed by Roslyn analyzers, returning structured findings (verified 2026-08-03 in Claude Code: compiler diagnostics and NetAnalyzers CA rules, planted issues return CS0219, CS0162, and CA2000 with positions)
 - [x] `run_semgrep(code, ruleset)` tool for polyglot security rules (verified 2026-08-04 in Claude Code: planted SQL injection returns csharp-sqli with position; ruleset defaults to p/default)
-- [ ] Verified end-to-end inside Claude Code: tools listed, calls succeed, findings come back structured
+- [x] Verified end-to-end inside Claude Code: tools listed, calls succeed, findings come back structured (both tools called live in Claude Code sessions, 2026-08-03 and 2026-08-04; every invocation logged to stderr with size, finding count, and duration)
 - [ ] Demo GIF of Claude Code using the server
 
 ### Phase 2 — One Agent, Real Tools
