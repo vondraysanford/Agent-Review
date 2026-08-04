@@ -17,4 +17,14 @@ public static class StaticAnalysisTools
         var findings = CSharpAnalyzer.Analyze(code);
         return JsonSerializer.Serialize(findings, JsonOptions);
     }
+
+    [McpServerTool(Name = "run_semgrep")]
+    [Description("Run Semgrep rules against source code (security patterns, secrets, injection). Returns a JSON array of findings: ruleId, message, line, column, severity, source.")]
+    public static string RunSemgrep(
+        [Description("The source code to analyze.")] string code,
+        [Description("Semgrep registry ruleset to apply, e.g. p/default or p/csharp.")] string ruleset = "p/default")
+    {
+        var findings = SemgrepRunner.Run(code, ruleset);
+        return JsonSerializer.Serialize(findings, JsonOptions);
+    }
 }
