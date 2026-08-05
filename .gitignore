@@ -28,3 +28,6 @@ TestResults/
 
 # Node (dashboard phase, later)
 node_modules/
+
+# Demo screen recordings stay local; the converted GIF is the committed artifact
+*.mov

@@ -4,15 +4,21 @@
 [![C#](https://img.shields.io/badge/Language-C%23-239120)](https://learn.microsoft.com/dotnet/csharp/)
 [![MCP](https://img.shields.io/badge/MCP-Model%20Context%20Protocol-blue)](https://modelcontextprotocol.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Status: Planning](https://img.shields.io/badge/Status-Planning-orange)](#build-plan)
+[![Status: Phase 1 complete](https://img.shields.io/badge/Status-Phase%201%20complete-brightgreen)](#build-plan)
 
 A multi-agent system where specialized AI agents collaborate to review pull requests. An orchestrator routes a code diff to independent agents (one for code quality, one for security, one for documentation), then synthesizes their findings into a single ranked review. Agents reach real tools (Roslyn analyzers, Semgrep, the GitHub API) through the Model Context Protocol.
 
 Built in C#/.NET. That choice is the point: agentic tooling is overwhelmingly Python, and this project proves the same patterns work in the Microsoft ecosystem. It is the sibling of [DocQuery](https://github.com/vondraysanford/docquery), which made the same argument for RAG.
 
-> **✅ Status: planning.** Nothing below is built yet. This README is the build plan.
+> **✅ Status: Phase 1 complete.** The static-analysis MCP server works end-to-end inside Claude Code. Everything else below is still the build plan.
 
 **The checkboxes in this README are an honesty contract. No box gets checked until the feature works end-to-end, verified in a terminal or a running app.**
+
+## Demo
+
+Claude Code calling the Phase 1 MCP server live: `analyze_csharp` (Roslyn) catches the planted unused variable and unreachable code, `run_semgrep` catches the planted SQL injection.
+
+![Claude Code calling the AgentReview static-analysis MCP server](docs/demo.gif)
 
 ## Why This Project
 
@@ -87,7 +93,7 @@ The first artifact is a working MCP server, not an agent. A server drops into Cl
 - [x] `analyze_csharp(code)` tool backed by Roslyn analyzers, returning structured findings (verified 2026-08-03 in Claude Code: compiler diagnostics and NetAnalyzers CA rules, planted issues return CS0219, CS0162, and CA2000 with positions)
 - [x] `run_semgrep(code, ruleset)` tool for polyglot security rules (verified 2026-08-04 in Claude Code: planted SQL injection returns csharp-sqli with position; ruleset defaults to p/default)
 - [x] Verified end-to-end inside Claude Code: tools listed, calls succeed, findings come back structured (both tools called live in Claude Code sessions, 2026-08-03 and 2026-08-04; every invocation logged to stderr with size, finding count, and duration)
-- [ ] Demo GIF of Claude Code using the server
+- [x] Demo GIF of Claude Code using the server (verified 2026-08-04: `docs/demo.gif`, recorded live in VS Code, shows both tools called via MCP with structured findings coming back; embedded above)
 
 ### Phase 2 — One Agent, Real Tools
 
