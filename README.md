@@ -97,7 +97,7 @@ The first artifact is a working MCP server, not an agent. A server drops into Cl
 
 ### Phase 2 — One Agent, Real Tools
 
-- [ ] Shared finding schema as a C# record (issue, file, line, severity, suggestion); every agent returns this shape, locked early
+- [x] Shared finding schema as a C# record (issue, file, line, severity, suggestion, source); every agent returns this shape, locked early (verified 2026-08-06: `Finding` record + ordered `FindingSeverity` enum in `AgentReview.Agents`, camelCase wire shape and analyzer severity mapping pinned by 4 new tests, 16 total green. This line originally omitted `source`; BUILD-GUIDE's six-field spec won because synthesis needs provenance)
 - [ ] Quality Agent: takes a diff, calls the static-analysis MCP tools, returns schema-valid findings grounded in analyzer output
 - [ ] GitHub MCP server wired in for surrounding file context
 - [ ] Test harness with 2 or 3 controlled sample diffs; every tool call logged
