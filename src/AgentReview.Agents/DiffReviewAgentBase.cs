@@ -39,6 +39,18 @@ public abstract class DiffReviewAgentBase(
     /// </summary>
     protected virtual bool IsToolNoise(StaticAnalysisFinding finding) => false;
 
+    /// <summary>
+    /// Which changed files go through the static tool pass. Agents without a
+    /// static tool return false for everything.
+    /// </summary>
+    protected virtual bool RunsToolOn(DiffFile file) => file.IsCSharp;
+
+    /// <summary>
+    /// Which changed files are fetched as GitHub context when repo coordinates
+    /// are available. The docs agent widens this beyond C#.
+    /// </summary>
+    protected virtual bool WantsContextFor(DiffFile file) => file.IsCSharp;
+
     public async Task<IReadOnlyList<Finding>> ReviewAsync(ReviewRequest request, CancellationToken cancellationToken = default)
     {
         var diff = request.Diff;
@@ -57,17 +69,25 @@ public abstract class DiffReviewAgentBase(
 
         var findings = new List<Finding>();
         var contextFiles = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (var file in files.Where(f => f.IsCSharp && f.NewLines.Count > 0))
+        foreach (var file in files.Where(f => f.NewLines.Count > 0 && (RunsToolOn(f) || WantsContextFor(f))))
         {
             string? fullContent = null;
-            if (request.Repo is not null)
+            if (request.Repo is not null && WantsContextFor(file))
             {
                 fullContent = await fileContent.GetFileContentAsync(request.Repo, file.Path, cancellationToken);
+                if (fullContent is not null)
+                {
+                    contextFiles[file.Path] = fullContent;
+                }
+            }
+
+            if (!RunsToolOn(file))
+            {
+                continue;
             }
 
             if (fullContent is not null)
             {
-                contextFiles[file.Path] = fullContent;
                 findings.AddRange(await AnalyzeFullFileAsync(file, fullContent, cancellationToken));
             }
             else
