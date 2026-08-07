@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\AgentReview.Agents\AgentReview.Agents.csproj" />
     <ProjectReference Include="..\..\src\AgentReview.McpServers.StaticAnalysis\AgentReview.McpServers.StaticAnalysis.csproj" />
+    <ProjectReference Include="..\..\src\AgentReview.Orchestrator\AgentReview.Orchestrator.csproj" />
   </ItemGroup>
 
 </Project>

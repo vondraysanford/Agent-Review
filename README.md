@@ -110,7 +110,7 @@ The first artifact is a working MCP server, not an agent. A server drops into Cl
 
 ### Phase 4 — Orchestration and Synthesis
 
-- [ ] Orchestrator fans one diff out to all three agents concurrently
+- [x] Orchestrator fans one diff out to all three agents concurrently (verified 2026-08-07: `--all` on the security sample ran quality, security, and docs simultaneously; 31.0s of summed agent time completed in 13.7s of wall clock, with both MCP tools multiplexing concurrently over the single stdio server connection. A failing agent is captured in its result slot without sinking the run, pinned by tests including a deadlock-gate concurrency test. 59 unit tests green)
 - [ ] Synthesis: deduplicate overlapping findings, resolve conflicts with a stated rule or an LLM arbiter, rank by severity
 - [ ] End-to-end test on a diff with planted issues produces one coherent, ordered review
 

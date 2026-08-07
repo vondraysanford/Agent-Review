@@ -68,6 +68,7 @@ builder.Services.AddSingleton<IFileContentProvider, GitHubMcpFileContentProvider
 builder.Services.AddKeyedSingleton<IReviewAgent, QualityAgent>("quality");
 builder.Services.AddKeyedSingleton<IReviewAgent, SecurityAgent>("security");
 builder.Services.AddKeyedSingleton<IReviewAgent, DocsAgent>("docs");
+builder.Services.AddSingleton<AgentReview.Orchestrator.ReviewOrchestrator>();
 
 using var host = builder.Build();
 var logger = host.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Orchestrator");
@@ -76,6 +77,7 @@ string? diffPath = null;
 string? repoArg = null;
 string? refArg = null;
 var harnessMode = false;
+var allMode = false;
 var agentName = "quality";
 for (var i = 0; i < args.Length; i++)
 {
@@ -86,6 +88,9 @@ for (var i = 0; i < args.Length; i++)
             break;
         case "--agent":
             agentName = ++i < args.Length ? args[i] : agentName;
+            break;
+        case "--all":
+            allMode = true;
             break;
         case "--repo":
             repoArg = ++i < args.Length ? args[i] : null;
@@ -141,6 +146,22 @@ if (harnessMode)
 }
 
 var diff = await File.ReadAllTextAsync(diffPath!);
+
+if (allMode)
+{
+    var orchestrator = host.Services.GetRequiredService<AgentReview.Orchestrator.ReviewOrchestrator>();
+    var review = await orchestrator.ReviewAsync(new ReviewRequest(diff, repo));
+
+    var bySection = review.Runs.ToDictionary(
+        r => r.Agent,
+        object (r) => r.Findings is not null ? r.Findings : new { error = r.Error });
+    Console.WriteLine(JsonSerializer.Serialize(bySection, outputJson));
+
+    var timing = string.Join(" + ", review.Runs.Select(r => $"{r.Agent} {r.Elapsed.TotalSeconds:F1}s"));
+    Console.WriteLine($"{timing} ran in {review.TotalElapsed.TotalSeconds:F1}s total");
+    return review.AnySucceeded ? 0 : 1;
+}
+
 var stopwatch = Stopwatch.StartNew();
 
 try
