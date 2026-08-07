@@ -1,6 +1,8 @@
+using System.Text;
 using System.Text.Json;
 using AgentReview.Agents.Configuration;
 using AgentReview.Agents.Diff;
+using AgentReview.Agents.GitHub;
 using AgentReview.Agents.Llm;
 using AgentReview.Agents.StaticAnalysis;
 using Microsoft.Extensions.Logging;
@@ -12,13 +14,15 @@ namespace AgentReview.Agents;
 /// The quality reviewer: parses a unified diff, runs changed C# code through the
 /// static-analysis MCP server, adds one LLM pass for complexity, naming, and
 /// duplication, and merges both into one list of schema-valid findings.
-/// Fails closed: if a tool or the LLM fails, the review fails; degraded partial
-/// reviews would break the honesty contract, and tolerating a failed agent is the
-/// orchestrator's job in Phase 4.
+/// With repo coordinates, full new-revision files are fetched through the GitHub MCP
+/// server: the analyzer then sees whole files instead of hunk fragments, and the LLM
+/// gets the same files as context. Without coordinates, the diff is all there is.
+/// Fails closed on analyzer or LLM errors; missing GitHub context only degrades.
 /// </summary>
 public sealed class QualityAgent(
     ILlmProvider llm,
     IStaticAnalysisClient staticAnalysis,
+    IFileContentProvider fileContent,
     IOptions<QualityAgentOptions> options,
     ILogger<QualityAgent> logger) : IReviewAgent
 {
@@ -26,29 +30,50 @@ public sealed class QualityAgent(
 
     public string Name => "quality";
 
-    public async Task<IReadOnlyList<Finding>> ReviewAsync(string diff, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Finding>> ReviewAsync(ReviewRequest request, CancellationToken cancellationToken = default)
     {
         var opts = options.Value;
+        var diff = request.Diff;
         if (diff.Length > opts.MaxDiffChars)
         {
             throw new ArgumentException(
                 $"Diff is {diff.Length} chars; this agent caps input at {opts.MaxDiffChars} (QualityAgent:MaxDiffChars).",
-                nameof(diff));
+                nameof(request));
         }
 
         var files = UnifiedDiffParser.Parse(diff);
         if (files.Count == 0)
         {
-            throw new ArgumentException("Input is not a unified diff.", nameof(diff));
+            throw new ArgumentException("Input is not a unified diff.", nameof(request));
         }
 
         var findings = new List<Finding>();
+        var contextFiles = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var file in files.Where(f => f.IsCSharp && f.NewLines.Count > 0))
         {
-            findings.AddRange(await AnalyzeFileAsync(file, cancellationToken));
+            string? fullContent = null;
+            if (request.Repo is not null)
+            {
+                fullContent = await fileContent.GetFileContentAsync(request.Repo, file.Path, cancellationToken);
+            }
+
+            if (fullContent is not null)
+            {
+                contextFiles[file.Path] = fullContent;
+                findings.AddRange(await AnalyzeFullFileAsync(file, fullContent, cancellationToken));
+            }
+            else
+            {
+                if (request.Repo is not null)
+                {
+                    logger.LogWarning("No context for {File}; falling back to fragment analysis", file.Path);
+                }
+
+                findings.AddRange(await AnalyzeFragmentAsync(file, cancellationToken));
+            }
         }
 
-        findings.AddRange(await GetLlmFindingsAsync(diff, files, findings, cancellationToken));
+        findings.AddRange(await GetLlmFindingsAsync(diff, files, contextFiles, findings, cancellationToken));
 
         return findings
             .OrderByDescending(f => f.Severity)
@@ -60,15 +85,51 @@ public sealed class QualityAgent(
     }
 
     /// <summary>
-    /// Runs one file's hunk text through analyze_csharp and maps the results back to
-    /// real line numbers. Two filters keep fragment noise out: findings on context
-    /// lines are outside the change under review, and CS compiler errors are almost
-    /// always resolution failures caused by analyzing a fragment (the snippet cannot
-    /// see usings or types outside the hunks). Known v1 limitation: a real compile
-    /// error introduced by the diff is filtered with the noise; full-file context via
-    /// the GitHub MCP server is the planned fix.
+    /// Full-file analysis, used when GitHub context is available. Analyzer line numbers
+    /// are real file lines, so no positional mapping is needed; findings are kept only
+    /// on lines this diff added, keeping the review scoped to the change. The CS-error
+    /// filter stays even here: a single file still cannot resolve types from other files
+    /// or packages, so resolution errors remain fragment noise, just less of it.
     /// </summary>
-    private async Task<List<Finding>> AnalyzeFileAsync(DiffFile file, CancellationToken cancellationToken)
+    private async Task<List<Finding>> AnalyzeFullFileAsync(DiffFile file, string fullContent, CancellationToken cancellationToken)
+    {
+        var raw = await staticAnalysis.AnalyzeCSharpAsync(fullContent, cancellationToken);
+        var addedLines = file.NewLines.Where(l => l.IsAdded).Select(l => l.NewLineNumber).ToHashSet();
+
+        var kept = new List<Finding>();
+        int droppedErrors = 0, droppedUnchanged = 0;
+        foreach (var f in raw)
+        {
+            if (!addedLines.Contains(f.Line))
+            {
+                droppedUnchanged++;
+                continue;
+            }
+
+            if (IsFragmentCompilerError(f))
+            {
+                droppedErrors++;
+                continue;
+            }
+
+            kept.Add(ToFinding(f, file.Path, f.Line));
+        }
+
+        logger.LogInformation(
+            "Analyzer pass {File} (full file): {Kept} kept, {DroppedErrors} compiler errors dropped, {DroppedUnchanged} findings on unchanged lines dropped",
+            file.Path,
+            kept.Count,
+            droppedErrors,
+            droppedUnchanged);
+
+        return kept;
+    }
+
+    /// <summary>
+    /// Fragment analysis on hunk text, used when no repo context is available. Analyzer
+    /// lines are snippet-relative and map positionally back to real new-file lines.
+    /// </summary>
+    private async Task<List<Finding>> AnalyzeFragmentAsync(DiffFile file, CancellationToken cancellationToken)
     {
         var snippet = string.Join('\n', file.NewLines.Select(l => l.Content));
         var raw = await staticAnalysis.AnalyzeCSharpAsync(snippet, cancellationToken);
@@ -90,24 +151,17 @@ public sealed class QualityAgent(
                 continue;
             }
 
-            if (f.RuleId.StartsWith("CS", StringComparison.Ordinal)
-                && string.Equals(f.Severity, "Error", StringComparison.OrdinalIgnoreCase))
+            if (IsFragmentCompilerError(f))
             {
                 droppedErrors++;
                 continue;
             }
 
-            kept.Add(new Finding(
-                Issue: $"{f.RuleId}: {f.Message}",
-                File: file.Path,
-                Line: line.NewLineNumber,
-                Severity: Finding.ParseSeverity(f.Severity),
-                Suggestion: null,
-                Source: f.Source));
+            kept.Add(ToFinding(f, file.Path, line.NewLineNumber));
         }
 
         logger.LogInformation(
-            "Analyzer pass {File}: {Kept} kept, {DroppedErrors} fragment compiler errors dropped, {DroppedContext} context-line findings dropped, {DroppedOutOfRange} out of range",
+            "Analyzer pass {File} (fragment): {Kept} kept, {DroppedErrors} fragment compiler errors dropped, {DroppedContext} context-line findings dropped, {DroppedOutOfRange} out of range",
             file.Path,
             kept.Count,
             droppedErrors,
@@ -117,14 +171,34 @@ public sealed class QualityAgent(
         return kept;
     }
 
+    /// <summary>
+    /// CS compiler errors on partial input are almost always resolution failures (the
+    /// analyzed text cannot see other files or package references), so they are noise
+    /// rather than review findings. CS warnings and CA rules carry the real signal.
+    /// </summary>
+    private static bool IsFragmentCompilerError(StaticAnalysisFinding f) =>
+        f.RuleId.StartsWith("CS", StringComparison.Ordinal)
+        && string.Equals(f.Severity, "Error", StringComparison.OrdinalIgnoreCase);
+
+    private static Finding ToFinding(StaticAnalysisFinding f, string path, int realLine) =>
+        new(
+            Issue: $"{f.RuleId}: {f.Message}",
+            File: path,
+            Line: realLine,
+            Severity: Finding.ParseSeverity(f.Severity),
+            Suggestion: null,
+            Source: f.Source);
+
     private async Task<List<Finding>> GetLlmFindingsAsync(
         string diff,
         IReadOnlyList<DiffFile> files,
+        IReadOnlyDictionary<string, string> contextFiles,
         IReadOnlyList<Finding> analyzerFindings,
         CancellationToken cancellationToken)
     {
+        var userContent = BuildUserContent(diff, contextFiles);
         var response = await llm.CompleteAsync(
-            new LlmRequest(SystemPrompt, diff, ResponseSchema, options.Value.MaxOutputTokens),
+            new LlmRequest(SystemPrompt, userContent, ResponseSchema, options.Value.MaxOutputTokens),
             cancellationToken);
 
         if (response.StopReason == "refusal")
@@ -173,6 +247,51 @@ public sealed class QualityAgent(
         return kept;
     }
 
+    /// <summary>
+    /// The LLM sees the diff first, then any fetched full files as delimited context
+    /// sections, bounded by MaxContextChars so a large PR cannot run up the input bill.
+    /// </summary>
+    private string BuildUserContent(string diff, IReadOnlyDictionary<string, string> contextFiles)
+    {
+        if (contextFiles.Count == 0)
+        {
+            return diff;
+        }
+
+        var maxContextChars = options.Value.MaxContextChars;
+        var builder = new StringBuilder(diff);
+        var used = 0;
+        var appended = 0;
+        var skipped = 0;
+        foreach (var (path, content) in contextFiles)
+        {
+            if (used + content.Length > maxContextChars)
+            {
+                skipped++;
+                logger.LogInformation(
+                    "Context for {File} skipped: {Chars} chars would exceed QualityAgent:MaxContextChars ({Max})",
+                    path,
+                    content.Length,
+                    maxContextChars);
+                continue;
+            }
+
+            builder.Append("\n\n<context file=\"").Append(path).Append("\">\n")
+                .Append(content)
+                .Append("\n</context>");
+            used += content.Length;
+            appended++;
+        }
+
+        logger.LogInformation(
+            "LLM context: {Appended} file(s) appended ({Chars} chars), {Skipped} skipped",
+            appended,
+            used,
+            skipped);
+
+        return builder.ToString();
+    }
+
     private sealed record LlmReviewResponse(List<LlmFindingDto> Findings);
 
     private sealed record LlmFindingDto(string Issue, string File, int Line, string Severity, string? Suggestion);
@@ -192,6 +311,9 @@ public sealed class QualityAgent(
            problems worth fixing before merge, Info for minor style points.
         6. Give a concrete suggestion when you have one, otherwise null.
         7. If the diff is clean, return an empty findings array.
+        8. Some reviews include <context file="..."> sections holding the full new version of
+           changed files. Use them to judge complexity, naming, and duplication accurately,
+           but findings must still point at lines the diff adds or changes.
         """;
 
     private const string ResponseSchema = """

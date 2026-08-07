@@ -16,4 +16,10 @@ public sealed class QualityAgentOptions
 
     /// <summary>Output token cap for the agent's single LLM call.</summary>
     public int MaxOutputTokens { get; set; } = 4096;
+
+    /// <summary>
+    /// Cap on the total GitHub-fetched file context appended to the LLM prompt.
+    /// Files that would push past the cap are skipped, with a log line.
+    /// </summary>
+    public int MaxContextChars { get; set; } = 40_000;
 }

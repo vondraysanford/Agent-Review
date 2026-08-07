@@ -9,5 +9,5 @@ public interface IReviewAgent
 {
     string Name { get; }
 
-    Task<IReadOnlyList<Finding>> ReviewAsync(string diff, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Finding>> ReviewAsync(ReviewRequest request, CancellationToken cancellationToken = default);
 }
