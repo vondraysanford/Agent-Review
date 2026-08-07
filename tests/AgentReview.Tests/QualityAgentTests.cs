@@ -336,48 +336,4 @@ public class QualityAgentTests
         Assert.Empty(files.RequestedPaths);
     }
 
-    private sealed class FakeFileContentProvider : IFileContentProvider
-    {
-        public string? Content { get; init; }
-        public List<string> RequestedPaths { get; } = [];
-
-        public Task<string?> GetFileContentAsync(RepoReference repo, string path, CancellationToken cancellationToken = default)
-        {
-            RequestedPaths.Add(path);
-            return Task.FromResult(Content);
-        }
-    }
-
-    private sealed class FakeStaticAnalysisClient : IStaticAnalysisClient
-    {
-        public List<string> ReceivedSnippets { get; } = [];
-        public List<StaticAnalysisFinding> Findings { get; init; } = [];
-        public Exception? ThrowOnCall { get; init; }
-
-        public Task<IReadOnlyList<StaticAnalysisFinding>> AnalyzeCSharpAsync(string code, CancellationToken cancellationToken = default)
-        {
-            if (ThrowOnCall is not null)
-            {
-                throw ThrowOnCall;
-            }
-
-            ReceivedSnippets.Add(code);
-            return Task.FromResult<IReadOnlyList<StaticAnalysisFinding>>(Findings);
-        }
-    }
-
-    private sealed class FakeLlmProvider : ILlmProvider
-    {
-        public string ResponseText { get; init; } = """{"findings":[]}""";
-        public string? StopReason { get; init; } = "end_turn";
-        public int Calls { get; private set; }
-        public LlmRequest? LastRequest { get; private set; }
-
-        public Task<LlmResponse> CompleteAsync(LlmRequest request, CancellationToken cancellationToken = default)
-        {
-            Calls++;
-            LastRequest = request;
-            return Task.FromResult(new LlmResponse(ResponseText, 100, 50, StopReason));
-        }
-    }
 }

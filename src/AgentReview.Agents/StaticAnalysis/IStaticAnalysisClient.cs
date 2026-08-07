@@ -20,4 +20,10 @@ public interface IStaticAnalysisClient
     /// are 1-based positions within the snippet, not within any real file.
     /// </summary>
     Task<IReadOnlyList<StaticAnalysisFinding>> AnalyzeCSharpAsync(string code, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Runs the run_semgrep tool against a code snippet with the given registry pack.
+    /// The server analyzes the snippet as C#. Same snippet-relative line semantics.
+    /// </summary>
+    Task<IReadOnlyList<StaticAnalysisFinding>> RunSemgrepAsync(string code, string ruleset, CancellationToken cancellationToken = default);
 }

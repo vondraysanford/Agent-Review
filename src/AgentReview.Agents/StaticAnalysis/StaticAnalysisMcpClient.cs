@@ -22,28 +22,40 @@ public sealed class StaticAnalysisMcpClient(
     private readonly SemaphoreSlim _connectLock = new(1, 1);
     private McpClient? _client;
 
-    public async Task<IReadOnlyList<StaticAnalysisFinding>> AnalyzeCSharpAsync(string code, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<StaticAnalysisFinding>> AnalyzeCSharpAsync(string code, CancellationToken cancellationToken = default) =>
+        CallToolAsync("analyze_csharp", new Dictionary<string, object?> { ["code"] = code }, code.Length, cancellationToken);
+
+    public Task<IReadOnlyList<StaticAnalysisFinding>> RunSemgrepAsync(string code, string ruleset, CancellationToken cancellationToken = default) =>
+        CallToolAsync(
+            "run_semgrep",
+            new Dictionary<string, object?> { ["code"] = code, ["ruleset"] = ruleset },
+            code.Length,
+            cancellationToken);
+
+    private async Task<IReadOnlyList<StaticAnalysisFinding>> CallToolAsync(
+        string toolName,
+        Dictionary<string, object?> arguments,
+        int codeLength,
+        CancellationToken cancellationToken)
     {
         var client = await ConnectAsync(cancellationToken);
         var stopwatch = Stopwatch.StartNew();
-        var result = await client.CallToolAsync(
-            "analyze_csharp",
-            new Dictionary<string, object?> { ["code"] = code },
-            cancellationToken: cancellationToken);
+        var result = await client.CallToolAsync(toolName, arguments, cancellationToken: cancellationToken);
 
         if (result.IsError == true)
         {
             var error = result.Content?.OfType<TextContentBlock>().FirstOrDefault()?.Text ?? "no error detail";
-            throw new InvalidOperationException($"analyze_csharp returned an error: {error}");
+            throw new InvalidOperationException($"{toolName} returned an error: {error}");
         }
 
         var json = result.Content?.OfType<TextContentBlock>().FirstOrDefault()?.Text
-            ?? throw new InvalidOperationException("analyze_csharp returned no text content.");
+            ?? throw new InvalidOperationException($"{toolName} returned no text content.");
         var findings = JsonSerializer.Deserialize<List<StaticAnalysisFinding>>(json, JsonOptions) ?? [];
 
         logger.LogInformation(
-            "analyze_csharp: {CodeLength} chars in, {FindingCount} findings out, {ElapsedMs} ms",
-            code.Length,
+            "{Tool}: {CodeLength} chars in, {FindingCount} findings out, {ElapsedMs} ms",
+            toolName,
+            codeLength,
             findings.Count,
             stopwatch.ElapsedMilliseconds);
 

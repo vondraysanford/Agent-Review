@@ -42,6 +42,13 @@ builder.Services.AddOptions<QualityAgentOptions>()
     .Validate(o => o.MaxOutputTokens > 0, "QualityAgent:MaxOutputTokens must be positive.")
     .ValidateOnStart();
 
+builder.Services.AddOptions<SecurityAgentOptions>()
+    .Bind(builder.Configuration.GetSection(SecurityAgentOptions.SectionName))
+    .Validate(o => o.MaxDiffChars > 0, "SecurityAgent:MaxDiffChars must be positive.")
+    .Validate(o => o.MaxOutputTokens > 0, "SecurityAgent:MaxOutputTokens must be positive.")
+    .Validate(o => !string.IsNullOrWhiteSpace(o.Ruleset), "SecurityAgent:Ruleset is required.")
+    .ValidateOnStart();
+
 builder.Services.AddOptions<GitHubMcpOptions>()
     .Bind(builder.Configuration.GetSection(GitHubMcpOptions.SectionName))
     .Validate(
@@ -53,6 +60,7 @@ builder.Services.AddSingleton<ILlmProvider, AnthropicLlmProvider>();
 builder.Services.AddSingleton<IStaticAnalysisClient, StaticAnalysisMcpClient>();
 builder.Services.AddSingleton<IFileContentProvider, GitHubMcpFileContentProvider>();
 builder.Services.AddKeyedSingleton<IReviewAgent, QualityAgent>("quality");
+builder.Services.AddKeyedSingleton<IReviewAgent, SecurityAgent>("security");
 
 using var host = builder.Build();
 var logger = host.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Orchestrator");
@@ -61,12 +69,16 @@ string? diffPath = null;
 string? repoArg = null;
 string? refArg = null;
 var harnessMode = false;
+var agentName = "quality";
 for (var i = 0; i < args.Length; i++)
 {
     switch (args[i])
     {
         case "--harness":
             harnessMode = true;
+            break;
+        case "--agent":
+            agentName = ++i < args.Length ? args[i] : agentName;
             break;
         case "--repo":
             repoArg = ++i < args.Length ? args[i] : null;
@@ -107,7 +119,13 @@ if (repoArg is not null)
     repo = new RepoReference(parts[0], parts[1], refArg);
 }
 
-var agent = host.Services.GetRequiredKeyedService<IReviewAgent>("quality");
+var agent = host.Services.GetKeyedService<IReviewAgent>(agentName);
+if (agent is null)
+{
+    Console.Error.WriteLine($"Unknown agent '{agentName}'. Known agents: quality, security.");
+    return 2;
+}
+
 var outputJson = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 
 if (harnessMode)

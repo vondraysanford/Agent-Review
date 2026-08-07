@@ -104,7 +104,7 @@ The first artifact is a working MCP server, not an agent. A server drops into Cl
 
 ### Phase 3 — The Other Two Agents
 
-- [ ] Security Agent (Semgrep-backed, plus LLM reasoning over the diff)
+- [x] Security Agent (Semgrep-backed, plus LLM reasoning over the diff) (verified 2026-08-07: `--agent security` on a planted-vulnerability diff; Semgrep caught the SQL injection via `run_semgrep` with `p/csharp`, the LLM caught the hardcoded connection-string password that registry packs miss, and its duplicate SQLi restatement was deduped in favor of the scanner. Shared pipeline extracted to `DiffReviewAgentBase`; all 42 prior tests passed unchanged through the refactor, 47 total green)
 - [ ] Docs Agent (GitHub-context-backed)
 - [ ] All three run independently and return the identical schema
 
