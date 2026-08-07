@@ -4,13 +4,13 @@
 [![C#](https://img.shields.io/badge/Language-C%23-239120)](https://learn.microsoft.com/dotnet/csharp/)
 [![MCP](https://img.shields.io/badge/MCP-Model%20Context%20Protocol-blue)](https://modelcontextprotocol.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Status: Phase 2 complete](https://img.shields.io/badge/Status-Phase%202%20complete-brightgreen)](#build-plan)
+[![Status: Phase 3 complete](https://img.shields.io/badge/Status-Phase%203%20complete-brightgreen)](#build-plan)
 
 A multi-agent system where specialized AI agents collaborate to review pull requests. An orchestrator routes a code diff to independent agents (one for code quality, one for security, one for documentation), then synthesizes their findings into a single ranked review. Agents reach real tools (Roslyn analyzers, Semgrep, the GitHub API) through the Model Context Protocol.
 
 Built in C#/.NET. That choice is the point: agentic tooling is overwhelmingly Python, and this project proves the same patterns work in the Microsoft ecosystem. It is the sibling of [DocQuery](https://github.com/vondraysanford/docquery), which made the same argument for RAG.
 
-> **✅ Status: Phase 2 complete.** The static-analysis MCP server works end-to-end inside Claude Code, and the Quality Agent turns real diffs into schema-valid findings grounded in MCP tool output, with GitHub-fetched file context and committed sample reviews. Phases 3 to 6 below are still the build plan.
+> **✅ Status: Phase 3 complete.** All three agents (quality, security, docs) review real diffs independently through MCP tools and LLM reasoning, returning one locked schema; 15 committed sample reviews are the proof. Phases 4 to 6 below (orchestration, evals, API) are still the build plan.
 
 **The checkboxes in this README are an honesty contract. No box gets checked until the feature works end-to-end, verified in a terminal or a running app.**
 
@@ -105,8 +105,8 @@ The first artifact is a working MCP server, not an agent. A server drops into Cl
 ### Phase 3 — The Other Two Agents
 
 - [x] Security Agent (Semgrep-backed, plus LLM reasoning over the diff) (verified 2026-08-07: `--agent security` on a planted-vulnerability diff; Semgrep caught the SQL injection via `run_semgrep` with `p/csharp`, the LLM caught the hardcoded connection-string password that registry packs miss, and its duplicate SQLi restatement was deduped in favor of the scanner. Shared pipeline extracted to `DiffReviewAgentBase`; all 42 prior tests passed unchanged through the refactor, 47 total green)
-- [ ] Docs Agent (GitHub-context-backed)
-- [ ] All three run independently and return the identical schema
+- [x] Docs Agent (GitHub-context-backed) (verified 2026-08-07: `--agent docs` on a planted diff caught the undocumented public class and method and the stale comment claiming a null return where the code throws, drafting complete XML doc comments in the suggestions. LLM-only by design, no static tool pass; GitHub context widened to Markdown files via the base class's new file filters. 52 unit tests green, including a guard that quality's context stays C#-only)
+- [x] All three run independently and return the identical schema (verified 2026-08-07: harness run per agent over all 5 sample diffs produced 15 committed schema-valid reviews under `samples/reviews/<agent>/`; lane separation is visible in the data, security returns zero findings on every non-security diff and exactly its planted catches on the security one. Schema identity pinned by a test asserting all three agents' findings serialize to the same six-field JSON shape, plus keyed-DI resolution of the full roster. 55 unit tests green)
 
 ### Phase 4 — Orchestration and Synthesis
 

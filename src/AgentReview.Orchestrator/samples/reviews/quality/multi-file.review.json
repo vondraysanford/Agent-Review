@@ -1,0 +1,42 @@
+[
+  {
+    "issue": "Magic number 0.0825 is hard-coded twice with no explanation of what rate it represents.",
+    "file": "src/Demo/ReportBuilder.cs",
+    "line": 10,
+    "severity": "Warning",
+    "suggestion": "Introduce a named constant such as \u0060private const decimal TaxRate = 0.0825m;\u0060 (or inject it via configuration) and use it in both places.",
+    "source": "llm"
+  },
+  {
+    "issue": "The \u0022sales\u0022 and \u0022refund\u0022 branches are near-identical, duplicating both the tax calculation and the string assembly with only a label differing.",
+    "file": "src/Demo/ReportBuilder.cs",
+    "line": 13,
+    "severity": "Warning",
+    "suggestion": "Collapse the two branches into one, e.g. resolve a label (\u0060var label = report.Kind == \u0022refund\u0022 ? \u0022Refund tax\u0022 : \u0022Sales tax\u0022;\u0060) and build the result once, or extract a private \u0060BuildTaxedReport(Report report, string label)\u0060 helper.",
+    "source": "llm"
+  },
+  {
+    "issue": "The refund branch adds the tax to the total (\u0060report.Total \u002B s\u0060), identical to the sales branch, which is suspicious for a refund and reads as a copy-paste oversight.",
+    "file": "src/Demo/ReportBuilder.cs",
+    "line": 16,
+    "severity": "Warning",
+    "suggestion": "Confirm the intended refund arithmetic and make it explicit (e.g. subtract for refunds) or add a comment explaining why refunds add tax.",
+    "source": "llm"
+  },
+  {
+    "issue": "Report kind is dispatched via magic strings compared inline, which is error-prone and scales poorly as kinds are added.",
+    "file": "src/Demo/ReportBuilder.cs",
+    "line": 8,
+    "severity": "Info",
+    "suggestion": "Model \u0060Kind\u0060 as an enum (or expose constants) and switch on it instead of comparing raw string literals.",
+    "source": "llm"
+  },
+  {
+    "issue": "Local variable \u0060s\u0060 is a non-descriptive single-letter name for the computed tax amount.",
+    "file": "src/Demo/ReportBuilder.cs",
+    "line": 10,
+    "severity": "Info",
+    "suggestion": "Rename to \u0060tax\u0060 or \u0060taxAmount\u0060.",
+    "source": "llm"
+  }
+]

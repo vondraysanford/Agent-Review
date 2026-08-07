@@ -1,0 +1,18 @@
+[
+  {
+    "issue": "Hardcoded database credentials (User Id and Password) are embedded in a connection string constant, exposing production secrets in source control.",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 8,
+    "severity": "Error",
+    "suggestion": "Remove the literal credentials and load the connection string from a secure source at runtime, e.g. configuration/secret store: \u0060private static readonly string ConnectionString = Environment.GetEnvironmentVariable(\u0022CRM_DB_CONNECTION\u0022) ?? throw new InvalidOperationException(...);\u0060 and rotate the leaked \u0027hunter2\u0027 password.",
+    "source": "llm"
+  },
+  {
+    "issue": "csharp.lang.security.sqli.csharp-sqli.csharp-sqli: Detected a formatted string in a SQL statement. This could lead to SQL injection if variables in the SQL statement are not properly sanitized. Use a prepared statements instead. You can obtain a PreparedStatement using \u0027SqlCommand\u0027 and \u0027SqlParameter\u0027.",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 13,
+    "severity": "Error",
+    "suggestion": null,
+    "source": "semgrep"
+  }
+]

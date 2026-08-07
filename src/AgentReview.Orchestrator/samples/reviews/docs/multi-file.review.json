@@ -1,0 +1,18 @@
+[
+  {
+    "issue": "The new documentation sentence states that sales and refund reports \u0022include tax\u0022 but omits the tax rate and the fact that a tax-inclusive total line is emitted, so it under-describes the behavior added in this change.",
+    "file": "docs/reports.md",
+    "line": 3,
+    "severity": "Warning",
+    "suggestion": "Sales and refund reports append an 8.25% tax line followed by a tax-inclusive total line.",
+    "source": "llm"
+  },
+  {
+    "issue": "The added branches change the public \u0060Build\u0060 behavior (tax lines are now appended for \u0022sales\u0022 and \u0022refund\u0022 report kinds) but the method still has no XML doc comment describing the returned content or the recognized \u0060Report.Kind\u0060 values.",
+    "file": "src/Demo/ReportBuilder.cs",
+    "line": 9,
+    "severity": "Warning",
+    "suggestion": "Add an XML doc comment above \u0060Build\u0060:\n/// \u003Csummary\u003E\n/// Builds the textual representation of a report.\n/// \u003C/summary\u003E\n/// \u003Cparam name=\u0022report\u0022\u003EThe report to render.\u003C/param\u003E\n/// \u003Creturns\u003E\n/// The formatted header. When \u003Csee cref=\u0022Report.Kind\u0022/\u003E is \u0022sales\u0022 or \u0022refund\u0022,\n/// an 8.25% tax line and a tax-inclusive total line are appended.\n/// \u003C/returns\u003E",
+    "source": "llm"
+  }
+]

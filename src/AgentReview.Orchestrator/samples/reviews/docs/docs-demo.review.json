@@ -1,0 +1,26 @@
+[
+  {
+    "issue": "New public type RetryPolicy has no XML doc comment.",
+    "file": "src/Demo/RetryPolicy.cs",
+    "line": 5,
+    "severity": "Warning",
+    "suggestion": "/// \u003Csummary\u003E\n/// Provides a simple retry strategy that re-invokes an operation until it succeeds or the attempt limit is exhausted.\n/// \u003C/summary\u003E",
+    "source": "llm"
+  },
+  {
+    "issue": "The comment claims the method returns null when all attempts fail, but the method throws InvalidOperationException instead.",
+    "file": "src/Demo/RetryPolicy.cs",
+    "line": 7,
+    "severity": "Warning",
+    "suggestion": "Replace the comment with accurate XML documentation, e.g. \u0022/// \u003Csummary\u003EExecutes \u003Cparamref name=\\\u0022operation\\\u0022/\u003E, retrying on failure.\u003C/summary\u003E\\n/// \u003Cexception cref=\\\u0022InvalidOperationException\\\u0022\u003EThrown when the operation fails after all attempts.\u003C/exception\u003E\u0022",
+    "source": "llm"
+  },
+  {
+    "issue": "New public method Execute\u003CT\u003E has no XML doc comment describing its type parameter, parameters, return value, or thrown exception.",
+    "file": "src/Demo/RetryPolicy.cs",
+    "line": 8,
+    "severity": "Warning",
+    "suggestion": "/// \u003Csummary\u003E\n/// Invokes \u003Cparamref name=\u0022operation\u0022/\u003E and retries it until it succeeds or the attempt limit is reached.\n/// \u003C/summary\u003E\n/// \u003Ctypeparam name=\u0022T\u0022\u003EThe type of value produced by the operation.\u003C/typeparam\u003E\n/// \u003Cparam name=\u0022operation\u0022\u003EThe operation to execute.\u003C/param\u003E\n/// \u003Cparam name=\u0022maxAttempts\u0022\u003EThe maximum number of attempts to make.\u003C/param\u003E\n/// \u003Creturns\u003EThe value returned by the first successful invocation of \u003Cparamref name=\u0022operation\u0022/\u003E.\u003C/returns\u003E\n/// \u003Cexception cref=\u0022InvalidOperationException\u0022\u003EThrown when the operation does not succeed within \u003Cparamref name=\u0022maxAttempts\u0022/\u003E attempts.\u003C/exception\u003E",
+    "source": "llm"
+  }
+]

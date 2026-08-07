@@ -1,0 +1,58 @@
+[
+  {
+    "issue": "Off-by-one loop bound: \u0060attempt \u003C maxAttempts\u0060 starting at 1 performs only maxAttempts - 1 attempts, contradicting the parameter name.",
+    "file": "src/Demo/RetryPolicy.cs",
+    "line": 10,
+    "severity": "Error",
+    "suggestion": "Use \u0060for (var attempt = 1; attempt \u003C= maxAttempts; attempt\u002B\u002B)\u0060 (or start at 0 with \u0060attempt \u003C maxAttempts\u0060).",
+    "source": "llm"
+  },
+  {
+    "issue": "The doc comment says the method returns null on failure, but the implementation throws InvalidOperationException; the comment is misleading.",
+    "file": "src/Demo/RetryPolicy.cs",
+    "line": 7,
+    "severity": "Warning",
+    "suggestion": "Replace with an accurate XML doc comment, e.g. /// \u003Csummary\u003EExecutes the operation, retrying up to \u003Cparamref name=\u0022maxAttempts\u0022/\u003E times; throws InvalidOperationException if all attempts fail.\u003C/summary\u003E",
+    "source": "llm"
+  },
+  {
+    "issue": "CA1822: Member \u0027Execute\u0027 does not access instance data and can be marked as static",
+    "file": "src/Demo/RetryPolicy.cs",
+    "line": 8,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "CA1062: In externally visible method \u0027T RetryPolicy.Execute\u003CT\u003E(Func\u003CT\u003E operation, int maxAttempts)\u0027, validate parameter \u0027operation\u0027 is non-null before using it. If appropriate, throw an \u0027ArgumentNullException\u0027 when the argument is \u0027null\u0027.",
+    "file": "src/Demo/RetryPolicy.cs",
+    "line": 14,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "CA1031: Modify \u0027Execute\u0027 to catch a more specific allowed exception type, or rethrow the exception",
+    "file": "src/Demo/RetryPolicy.cs",
+    "line": 16,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "Empty catch block silently swallows every exception, leaving no trace of the failure cause and hurting diagnosability.",
+    "file": "src/Demo/RetryPolicy.cs",
+    "line": 17,
+    "severity": "Warning",
+    "suggestion": "Capture the exception (e.g. \u0060catch (Exception ex) when (...)\u0060) and record it, then include it as the inner exception of the final InvalidOperationException.",
+    "source": "llm"
+  },
+  {
+    "issue": "Class is named RetryPolicy but contains no delay/backoff between attempts, so the behaviour is a tight retry loop that the name does not convey.",
+    "file": "src/Demo/RetryPolicy.cs",
+    "line": 5,
+    "severity": "Info",
+    "suggestion": "Either add a configurable delay/backoff parameter or rename to something like ImmediateRetryExecutor to match actual behaviour.",
+    "source": "llm"
+  }
+]

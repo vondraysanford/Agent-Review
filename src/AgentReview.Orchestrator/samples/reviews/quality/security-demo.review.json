@@ -1,0 +1,50 @@
+[
+  {
+    "issue": "The connection string is hardcoded as a compile-time constant, so environment-specific settings cannot be changed without recompiling.",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 8,
+    "severity": "Warning",
+    "suggestion": "Inject the connection string via constructor parameter or read it from configuration (e.g. IConfiguration/options) instead of a private const.",
+    "source": "llm"
+  },
+  {
+    "issue": "CA1822: Member \u0027BuildQuery\u0027 does not access instance data and can be marked as static",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 10,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "BuildQuery creates a SqlConnection internally and returns only the SqlCommand, leaving connection ownership and disposal ambiguous for callers.",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 11,
+    "severity": "Warning",
+    "suggestion": "Either accept a SqlConnection as a parameter, or have the method open the connection, execute, and return materialized results so it can dispose both objects in a using block.",
+    "source": "llm"
+  },
+  {
+    "issue": "Building the WHERE clause by string concatenation rather than a parameter makes the query harder to read and maintain as filters grow.",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 13,
+    "severity": "Warning",
+    "suggestion": "Use a parameter placeholder (\u0060WHERE Name = @name\u0060) and \u0060cmd.Parameters.AddWithValue(\u0022@name\u0022, customerName)\u0060.",
+    "source": "llm"
+  },
+  {
+    "issue": "The local variable \u0060cmd\u0060 is assigned and immediately returned, adding noise without clarity.",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 13,
+    "severity": "Info",
+    "suggestion": "Return the new SqlCommand directly, or keep the local only if parameters are added to it.",
+    "source": "llm"
+  },
+  {
+    "issue": "\u0060SELECT *\u0060 couples the code to the current table shape and returns columns the caller may not need.",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 13,
+    "severity": "Info",
+    "suggestion": "List the specific columns required, e.g. \u0060SELECT Id, Name, Email FROM Customers WHERE Name = @name\u0060.",
+    "source": "llm"
+  }
+]

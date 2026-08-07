@@ -49,6 +49,12 @@ builder.Services.AddOptions<SecurityAgentOptions>()
     .Validate(o => !string.IsNullOrWhiteSpace(o.Ruleset), "SecurityAgent:Ruleset is required.")
     .ValidateOnStart();
 
+builder.Services.AddOptions<DocsAgentOptions>()
+    .Bind(builder.Configuration.GetSection(DocsAgentOptions.SectionName))
+    .Validate(o => o.MaxDiffChars > 0, "DocsAgent:MaxDiffChars must be positive.")
+    .Validate(o => o.MaxOutputTokens > 0, "DocsAgent:MaxOutputTokens must be positive.")
+    .ValidateOnStart();
+
 builder.Services.AddOptions<GitHubMcpOptions>()
     .Bind(builder.Configuration.GetSection(GitHubMcpOptions.SectionName))
     .Validate(
@@ -61,6 +67,7 @@ builder.Services.AddSingleton<IStaticAnalysisClient, StaticAnalysisMcpClient>();
 builder.Services.AddSingleton<IFileContentProvider, GitHubMcpFileContentProvider>();
 builder.Services.AddKeyedSingleton<IReviewAgent, QualityAgent>("quality");
 builder.Services.AddKeyedSingleton<IReviewAgent, SecurityAgent>("security");
+builder.Services.AddKeyedSingleton<IReviewAgent, DocsAgent>("docs");
 
 using var host = builder.Build();
 var logger = host.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Orchestrator");
@@ -122,7 +129,7 @@ if (repoArg is not null)
 var agent = host.Services.GetKeyedService<IReviewAgent>(agentName);
 if (agent is null)
 {
-    Console.Error.WriteLine($"Unknown agent '{agentName}'. Known agents: quality, security.");
+    Console.Error.WriteLine($"Unknown agent '{agentName}'. Known agents: quality, security, docs.");
     return 2;
 }
 
@@ -163,7 +170,7 @@ async Task<int> RunHarnessAsync()
         return 2;
     }
 
-    var reviewsDir = Path.Combine(samplesDir, "reviews");
+    var reviewsDir = Path.Combine(samplesDir, "reviews", agent.Name);
     Directory.CreateDirectory(reviewsDir);
 
     var failures = 0;
@@ -188,18 +195,18 @@ async Task<int> RunHarnessAsync()
             {
                 await File.WriteAllTextAsync(Path.Combine(reviewsDir, $"{name}.review.json"), reviewJson + "\n");
                 var bySource = findings.GroupBy(f => f.Source).OrderBy(g => g.Key).Select(g => $"{g.Key}:{g.Count()}");
-                summary.Add($"PASS {name}: {findings.Count} finding(s) [{string.Join(", ", bySource)}]");
+                summary.Add($"PASS {agent.Name}/{name}: {findings.Count} finding(s) [{string.Join(", ", bySource)}]");
             }
             else
             {
                 failures++;
-                summary.Add($"FAIL {name}: {string.Join("; ", errors)}");
+                summary.Add($"FAIL {agent.Name}/{name}: {string.Join("; ", errors)}");
             }
         }
         catch (Exception ex)
         {
             failures++;
-            summary.Add($"FAIL {name}: {ex.Message}");
+            summary.Add($"FAIL {agent.Name}/{name}: {ex.Message}");
         }
     }
 

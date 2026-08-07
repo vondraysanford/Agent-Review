@@ -52,7 +52,7 @@ public class SampleReviewTests
             Assert.Skip("samples/reviews does not exist yet; run the Orchestrator with --harness to generate it.");
         }
 
-        var reviews = Directory.GetFiles(reviewsDir, "*.review.json");
+        var reviews = Directory.GetFiles(reviewsDir, "*.review.json", SearchOption.AllDirectories);
         Assert.True(reviews.Length >= 1, "reviews directory exists but holds no review files");
 
         foreach (var path in reviews)

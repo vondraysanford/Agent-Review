@@ -1,0 +1,58 @@
+[
+  {
+    "issue": "CA1822: Member \u0027ProcessOrder\u0027 does not access instance data and can be marked as static",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 7,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "CS0219: The variable \u0027unused\u0027 is assigned but its value is never used",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 9,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "CA1303: Method \u0027decimal OrderProcessor.ProcessOrder(decimal amt, decimal tx)\u0027 passes a literal string as parameter \u0027value\u0027 of a call to \u0027void Console.WriteLine(string? value)\u0027. Retrieve the following string(s) from a resource table instead: \u0022never runs\u0022.",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 13,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "CS0162: Unreachable code detected",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 13,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "CA1822: Member \u0027ProcessRefund\u0027 does not access instance data and can be marked as static",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 16,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "ProcessRefund duplicates the total calculation and logging structure of ProcessOrder; only the log text differs.",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 18,
+    "severity": "Warning",
+    "suggestion": "Extract a shared helper such as \u0060private static decimal CalculateTotal(decimal amount, decimal taxRate) =\u003E amount \u002B amount * taxRate;\u0060 (optionally with an operation-name parameter for the log message) and call it from both methods.",
+    "source": "llm"
+  },
+  {
+    "issue": "Numeric suffix in \u0060total1\u0060 adds no meaning and only distinguishes it from the near-identical \u0060total2\u0060 in the sibling method.",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 10,
+    "severity": "Info",
+    "suggestion": "Rename both to \u0060total\u0060.",
+    "source": "llm"
+  }
+]

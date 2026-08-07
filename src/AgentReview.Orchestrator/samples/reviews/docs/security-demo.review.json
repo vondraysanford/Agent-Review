@@ -1,0 +1,18 @@
+[
+  {
+    "issue": "New public type \u0060CustomerLookup\u0060 has no XML documentation comment.",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 6,
+    "severity": "Warning",
+    "suggestion": "/// \u003Csummary\u003E\n/// Builds SQL commands for looking up customer records in the CRM database.\n/// \u003C/summary\u003E\npublic class CustomerLookup",
+    "source": "llm"
+  },
+  {
+    "issue": "New public method \u0060BuildQuery\u0060 has no XML documentation comment describing its parameter, return value, or the caller\u0027s responsibility for disposing the returned command and its connection.",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 10,
+    "severity": "Warning",
+    "suggestion": "/// \u003Csummary\u003E\n/// Creates a \u003Csee cref=\u0022SqlCommand\u0022/\u003E that selects the customer rows matching the supplied name.\n/// \u003C/summary\u003E\n/// \u003Cparam name=\u0022customerName\u0022\u003EThe customer name to match.\u003C/param\u003E\n/// \u003Creturns\u003E\n/// An unexecuted \u003Csee cref=\u0022SqlCommand\u0022/\u003E attached to a new, unopened connection.\n/// The caller owns the returned command and its \u003Csee cref=\u0022SqlCommand.Connection\u0022/\u003E and must dispose both.\n/// \u003C/returns\u003E\npublic SqlCommand BuildQuery(string customerName)",
+    "source": "llm"
+  }
+]

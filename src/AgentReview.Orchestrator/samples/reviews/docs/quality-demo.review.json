@@ -1,0 +1,34 @@
+[
+  {
+    "issue": "New public type OrderProcessor has no XML documentation comment.",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 5,
+    "severity": "Warning",
+    "suggestion": "/// \u003Csummary\u003E\n/// Calculates monetary totals for customer orders and refunds.\n/// \u003C/summary\u003E\npublic class OrderProcessor",
+    "source": "llm"
+  },
+  {
+    "issue": "New public method ProcessOrder has no XML documentation, and its parameter names \u0027amt\u0027 and \u0027tx\u0027 do not convey their meaning (amount and tax rate).",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 7,
+    "severity": "Warning",
+    "suggestion": "/// \u003Csummary\u003E\n/// Calculates the order total by applying the given tax rate to the order amount.\n/// \u003C/summary\u003E\n/// \u003Cparam name=\u0022amt\u0022\u003EThe pre-tax order amount.\u003C/param\u003E\n/// \u003Cparam name=\u0022tx\u0022\u003EThe tax rate expressed as a decimal fraction (for example, 0.07 for 7%).\u003C/param\u003E\n/// \u003Creturns\u003EThe order amount including tax.\u003C/returns\u003E\npublic decimal ProcessOrder(decimal amt, decimal tx)",
+    "source": "llm"
+  },
+  {
+    "issue": "New public method ProcessRefund has no XML documentation, and its parameter names \u0027amt\u0027 and \u0027tx\u0027 do not convey their meaning.",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 15,
+    "severity": "Warning",
+    "suggestion": "/// \u003Csummary\u003E\n/// Calculates the refund total by applying the given tax rate to the refunded amount.\n/// \u003C/summary\u003E\n/// \u003Cparam name=\u0022amt\u0022\u003EThe pre-tax amount being refunded.\u003C/param\u003E\n/// \u003Cparam name=\u0022tx\u0022\u003EThe tax rate expressed as a decimal fraction (for example, 0.07 for 7%).\u003C/param\u003E\n/// \u003Creturns\u003EThe refund amount including tax.\u003C/returns\u003E\npublic decimal ProcessRefund(decimal amt, decimal tx)",
+    "source": "llm"
+  },
+  {
+    "issue": "The name ProcessRefund misleads: the method performs exactly the same positive-total calculation as ProcessOrder, with no sign inversion or refund-specific behavior, so nothing distinguishes it as a refund operation.",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 15,
+    "severity": "Warning",
+    "suggestion": "Either document explicitly that the returned value is a positive refundable amount (e.g. \u0022/// \u003Creturns\u003EThe positive, tax-inclusive amount to be refunded to the customer.\u003C/returns\u003E\u0022) or rename the method to reflect that it simply computes a tax-inclusive total (e.g. CalculateTaxInclusiveTotal).",
+    "source": "llm"
+  }
+]
