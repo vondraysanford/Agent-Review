@@ -4,13 +4,13 @@
 [![C#](https://img.shields.io/badge/Language-C%23-239120)](https://learn.microsoft.com/dotnet/csharp/)
 [![MCP](https://img.shields.io/badge/MCP-Model%20Context%20Protocol-blue)](https://modelcontextprotocol.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Status: Phase 1 complete](https://img.shields.io/badge/Status-Phase%201%20complete-brightgreen)](#build-plan)
+[![Status: Phase 2 complete](https://img.shields.io/badge/Status-Phase%202%20complete-brightgreen)](#build-plan)
 
 A multi-agent system where specialized AI agents collaborate to review pull requests. An orchestrator routes a code diff to independent agents (one for code quality, one for security, one for documentation), then synthesizes their findings into a single ranked review. Agents reach real tools (Roslyn analyzers, Semgrep, the GitHub API) through the Model Context Protocol.
 
 Built in C#/.NET. That choice is the point: agentic tooling is overwhelmingly Python, and this project proves the same patterns work in the Microsoft ecosystem. It is the sibling of [DocQuery](https://github.com/vondraysanford/docquery), which made the same argument for RAG.
 
-> **✅ Status: Phase 1 complete.** The static-analysis MCP server works end-to-end inside Claude Code. Everything else below is still the build plan.
+> **✅ Status: Phase 2 complete.** The static-analysis MCP server works end-to-end inside Claude Code, and the Quality Agent turns real diffs into schema-valid findings grounded in MCP tool output, with GitHub-fetched file context and committed sample reviews. Phases 3 to 6 below are still the build plan.
 
 **The checkboxes in this README are an honesty contract. No box gets checked until the feature works end-to-end, verified in a terminal or a running app.**
 
@@ -100,7 +100,7 @@ The first artifact is a working MCP server, not an agent. A server drops into Cl
 - [x] Shared finding schema as a C# record (issue, file, line, severity, suggestion, source); every agent returns this shape, locked early (verified 2026-08-06: `Finding` record + ordered `FindingSeverity` enum in `AgentReview.Agents`, camelCase wire shape and analyzer severity mapping pinned by 4 new tests, 16 total green. This line originally omitted `source`; BUILD-GUIDE's six-field spec won because synthesis needs provenance)
 - [x] Quality Agent: takes a diff, calls the static-analysis MCP tools, returns schema-valid findings grounded in analyzer output (verified 2026-08-06: sample diff through the Orchestrator runner produced 6 findings, Roslyn CS0219/CS0162/CA1822/CA1303 at real new-file line numbers plus LLM naming and readability findings; 4 LLM duplicates of analyzer lines deduped; logs show the `analyze_csharp` MCP call and LLM token usage, 1108 in / 944 out on the configured model; 35 unit tests green. Known v1 limitation: without repo coordinates the analyzer runs on hunk text; with `--repo` the GitHub MCP item below supplies full-file context. Single-file analysis still cannot resolve cross-file types, so CS resolution errors stay filtered in both modes)
 - [x] GitHub MCP server wired in for surrounding file context (verified 2026-08-06: reviewed a real commit's diff with `--repo vondraysanford/Agent-Review`; logs show `get_file_contents` fetching the full 2004-char file through GitHub's hosted MCP server, the analyzer running in full-file mode at real line numbers, and the file appended to the LLM prompt as context, 2922 tokens in / 1407 out. Hosted-server note: sessions must pin the repo via `Mcp-Param-owner`/`Mcp-Param-repo` headers, so the client caches one connection per repo. Context failures degrade to fragment analysis instead of failing the review; raw-diff reviews without `--repo` are unchanged. 40 unit tests green)
-- [ ] Test harness with 2 or 3 controlled sample diffs; every tool call logged
+- [x] Test harness with 2 or 3 controlled sample diffs; every tool call logged (verified 2026-08-06: `--harness` mode runs the real agent over 3 committed sample diffs, asserts schema validity in code, and writes the reviews to `samples/reviews/` as committed artifacts; all 3 pass with every MCP and LLM call logged. The clean diff yields 0 findings, proving the empty path; the modified-method diff shows the fragment limitation honestly, its analyzer findings anchor to context lines and the review is LLM-only. 42 unit tests green, including a no-network test pinning the committed reviews' schema)
 
 ### Phase 3 — The Other Two Agents
 

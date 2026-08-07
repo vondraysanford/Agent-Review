@@ -1,0 +1,30 @@
+diff --git a/src/Demo/ReportBuilder.cs b/src/Demo/ReportBuilder.cs
+index 3333333..4444444 100644
+--- a/src/Demo/ReportBuilder.cs
++++ b/src/Demo/ReportBuilder.cs
+@@ -5,6 +5,16 @@ public class ReportBuilder
+     public string Build(Report report)
+     {
+         var header = FormatHeader(report);
++        if (report.Kind == "sales")
++        {
++            var s = report.Total * 0.0825m;
++            return header + "\nSales tax: " + s + "\nTotal: " + (report.Total + s);
++        }
++        if (report.Kind == "refund")
++        {
++            var s = report.Total * 0.0825m;
++            return header + "\nRefund tax: " + s + "\nTotal: " + (report.Total + s);
++        }
+         return header;
+     }
+ }
+diff --git a/docs/reports.md b/docs/reports.md
+index 5555555..6666666 100644
+--- a/docs/reports.md
++++ b/docs/reports.md
+@@ -1,3 +1,4 @@
+ # Reports
+ 
++Sales and refund reports include tax.
+ Text about reports.
