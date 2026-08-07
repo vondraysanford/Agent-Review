@@ -98,7 +98,7 @@ The first artifact is a working MCP server, not an agent. A server drops into Cl
 ### Phase 2 — One Agent, Real Tools
 
 - [x] Shared finding schema as a C# record (issue, file, line, severity, suggestion, source); every agent returns this shape, locked early (verified 2026-08-06: `Finding` record + ordered `FindingSeverity` enum in `AgentReview.Agents`, camelCase wire shape and analyzer severity mapping pinned by 4 new tests, 16 total green. This line originally omitted `source`; BUILD-GUIDE's six-field spec won because synthesis needs provenance)
-- [ ] Quality Agent: takes a diff, calls the static-analysis MCP tools, returns schema-valid findings grounded in analyzer output
+- [x] Quality Agent: takes a diff, calls the static-analysis MCP tools, returns schema-valid findings grounded in analyzer output (verified 2026-08-06: sample diff through the Orchestrator runner produced 6 findings, Roslyn CS0219/CS0162/CA1822/CA1303 at real new-file line numbers plus LLM naming and readability findings; 4 LLM duplicates of analyzer lines deduped; logs show the `analyze_csharp` MCP call and LLM token usage, 1108 in / 944 out on the configured model; 35 unit tests green. Known v1 limitation: analyzer runs on hunk text, so fragment compiler errors are filtered until the GitHub MCP item adds full-file context)
 - [ ] GitHub MCP server wired in for surrounding file context
 - [ ] Test harness with 2 or 3 controlled sample diffs; every tool call logged
 

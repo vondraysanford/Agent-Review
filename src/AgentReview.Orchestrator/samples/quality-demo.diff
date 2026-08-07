@@ -1,0 +1,28 @@
+diff --git a/src/Demo/OrderProcessor.cs b/src/Demo/OrderProcessor.cs
+new file mode 100644
+index 0000000..1a2b3c4
+--- /dev/null
++++ b/src/Demo/OrderProcessor.cs
+@@ -0,0 +1,22 @@
++using System;
++
++namespace Demo;
++
++public class OrderProcessor
++{
++    public decimal ProcessOrder(decimal amt, decimal tx)
++    {
++        int unused = 42;
++        var total1 = amt + amt * tx;
++        Console.WriteLine("Processing order with total " + total1);
++        return total1;
++        Console.WriteLine("never runs");
++    }
++
++    public decimal ProcessRefund(decimal amt, decimal tx)
++    {
++        var total2 = amt + amt * tx;
++        Console.WriteLine("Processing refund with total " + total2);
++        return total2;
++    }
++}
