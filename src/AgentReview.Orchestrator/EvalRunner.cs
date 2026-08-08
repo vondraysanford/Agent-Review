@@ -1,6 +1,8 @@
 using System.Diagnostics;
+using System.Text;
 using System.Text.Json;
 using AgentReview.Agents;
+using AgentReview.Agents.Diff;
 using Microsoft.Extensions.Logging;
 
 namespace AgentReview.Orchestrator;
@@ -96,7 +98,17 @@ public sealed class EvalRunner(
         await File.WriteAllTextAsync(Path.Combine(resultsDir, "machine.json"), JsonSerializer.Serialize(machine, Json) + "\n", cancellationToken);
         await File.WriteAllTextAsync(Path.Combine(resultsDir, "worksheet.json"), JsonSerializer.Serialize(worksheet, Json) + "\n", cancellationToken);
 
-        Console.WriteLine($"Eval run complete: {caseResults.Count} case(s); {worksheet.Count} unmatched finding(s) pending human verdicts in worksheet.json");
+        // House rule: human judgment gets human-readable context. The worksheet
+        // never ships without its review guide.
+        var caseDiffs = new List<(string Case, string Diff)>();
+        foreach (var caseDir in Directory.GetDirectories(casesDir).OrderBy(d => d, StringComparer.Ordinal))
+        {
+            caseDiffs.Add((Path.GetFileName(caseDir), await File.ReadAllTextAsync(Path.Combine(caseDir, "diff.diff"), cancellationToken)));
+        }
+
+        await File.WriteAllTextAsync(Path.Combine(resultsDir, "review-guide.md"), BuildReviewGuide(caseDiffs, worksheet), cancellationToken);
+
+        Console.WriteLine($"Eval run complete: {caseResults.Count} case(s); {worksheet.Count} unmatched finding(s) pending human verdicts in worksheet.json (see review-guide.md)");
         return 0;
     }
 
@@ -111,6 +123,57 @@ public sealed class EvalRunner(
         var findingsMatched = findings.Count(f =>
             labels.Any(label => EvalScorer.Matches(f, label, EvalScorer.AgentFromSource(f.Source))));
         return new AgentScore(labels.Count, labelsFound, findings.Count, findingsMatched);
+    }
+
+    /// <summary>
+    /// Renders the human review guide: each case's new-side code reconstructed from
+    /// its diff with real line numbers, followed by that case's pending findings
+    /// tagged with their worksheet indices.
+    /// </summary>
+    public static string BuildReviewGuide(
+        IReadOnlyList<(string Case, string Diff)> cases,
+        IReadOnlyList<WorksheetEntry> worksheet)
+    {
+        var guide = new StringBuilder();
+        guide.AppendLine("# Worksheet review guide");
+        guide.AppendLine();
+        guide.AppendLine("Generated with the eval run. For each finding, read the code and set the");
+        guide.AppendLine("matching worksheet.json entry (index shown) to \"agree\" or \"disagree\".");
+        guide.AppendLine();
+
+        foreach (var (caseName, diff) in cases)
+        {
+            var pending = worksheet
+                .Select((entry, index) => (Entry: entry, Index: index))
+                .Where(x => x.Entry.Case == caseName)
+                .ToList();
+
+            guide.Append("## Case: ").AppendLine(caseName);
+            guide.AppendLine();
+            foreach (var file in UnifiedDiffParser.Parse(diff).Where(f => f.NewLines.Count > 0))
+            {
+                guide.Append("### ").AppendLine(file.Path);
+                guide.AppendLine(file.IsCSharp ? "```csharp" : "```");
+                foreach (var line in file.NewLines)
+                {
+                    guide.Append($"{line.NewLineNumber,3}  ").AppendLine(line.Content);
+                }
+
+                guide.AppendLine("```");
+                guide.AppendLine();
+            }
+
+            guide.AppendLine(pending.Count == 0 ? "No pending findings." : "Pending findings:");
+            foreach (var (entry, index) in pending)
+            {
+                guide.AppendLine(
+                    $"- **[worksheet index {index}]** `{entry.File}:{entry.Line}` ({entry.Agent}/{entry.Source}): {entry.Issue}");
+            }
+
+            guide.AppendLine();
+        }
+
+        return guide.ToString();
     }
 
     /// <summary>Free pass: recompute final metrics from the human-filled worksheet.</summary>

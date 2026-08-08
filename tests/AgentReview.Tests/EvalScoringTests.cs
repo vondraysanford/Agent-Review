@@ -99,6 +99,35 @@ public class EvalScoringTests
         disabled.EnsureWithinBudget(); // no throw
     }
 
+    [Fact]
+    public void ReviewGuide_PairsNumberedCodeWithIndexedFindings()
+    {
+        const string diff = """
+            diff --git a/src/A.cs b/src/A.cs
+            new file mode 100644
+            index 0000000..1111111
+            --- /dev/null
+            +++ b/src/A.cs
+            @@ -0,0 +1,3 @@
+            +public class A
+            +{
+            +}
+            """;
+        var worksheet = new List<WorksheetEntry>
+        {
+            new("other-case", "docs", "docs-llm", "src/B.cs", 1, "elsewhere", "pending"),
+            new("my-case", "quality", "quality-llm", "src/A.cs", 1, "class A is undocumented", "pending"),
+        };
+
+        var guide = EvalRunner.BuildReviewGuide([("my-case", diff)], worksheet);
+
+        Assert.Contains("## Case: my-case", guide);
+        Assert.Contains("  1  public class A", guide);
+        Assert.Contains("[worksheet index 1]", guide);   // index into the full worksheet, not the case
+        Assert.Contains("class A is undocumented", guide);
+        Assert.DoesNotContain("elsewhere", guide);
+    }
+
     private static BudgetGuard CreateGuard(decimal maxPerReviewUsd)
     {
         var services = new ServiceCollection();
