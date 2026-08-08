@@ -1,0 +1,52 @@
+[
+  {
+    "id": "hardcoded-credentials",
+    "file": "src/Demo/AccountService.cs",
+    "line": 8,
+    "agents": [
+      "security"
+    ],
+    "kind": "hardcoded-secret",
+    "note": null
+  },
+  {
+    "id": "stale-comment",
+    "file": "src/Demo/AccountService.cs",
+    "line": 10,
+    "agents": [
+      "docs"
+    ],
+    "kind": "stale-comment",
+    "note": null
+  },
+  {
+    "id": "unused-variable",
+    "file": "src/Demo/AccountService.cs",
+    "line": 13,
+    "agents": [
+      "quality"
+    ],
+    "kind": "unused-variable",
+    "note": null
+  },
+  {
+    "id": "sql-injection",
+    "file": "src/Demo/AccountService.cs",
+    "line": 15,
+    "agents": [
+      "security"
+    ],
+    "kind": "sql-injection",
+    "note": null
+  },
+  {
+    "id": "unreachable-code",
+    "file": "src/Demo/AccountService.cs",
+    "line": 17,
+    "agents": [
+      "quality"
+    ],
+    "kind": "unreachable-code",
+    "note": null
+  }
+]

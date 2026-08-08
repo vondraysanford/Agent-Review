@@ -19,12 +19,17 @@ public sealed record OrchestratedReview(IReadOnlyList<AgentRunResult> Runs, Time
 /// no agent framework. A failing agent is captured as an error in its slot; it never
 /// sinks the other agents' runs.
 /// </summary>
-public sealed class ReviewOrchestrator(IServiceProvider services, ILogger<ReviewOrchestrator> logger)
+public sealed class ReviewOrchestrator(
+    IServiceProvider services,
+    BudgetGuard budget,
+    ILogger<ReviewOrchestrator> logger)
 {
     public static readonly string[] AgentNames = ["quality", "security", "docs"];
 
     public async Task<OrchestratedReview> ReviewAsync(ReviewRequest request, CancellationToken cancellationToken = default)
     {
+        budget.EnsureWithinBudget();
+
         using var activity = AgentReviewDiagnostics.Source.StartActivity("review.fanout");
         var total = Stopwatch.StartNew();
         var runs = await Task.WhenAll(AgentNames.Select(name => RunAgentAsync(name, request, cancellationToken)));

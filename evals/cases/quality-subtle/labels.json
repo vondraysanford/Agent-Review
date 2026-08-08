@@ -1,0 +1,22 @@
+[
+  {
+    "id": "deep-nesting",
+    "file": "src/Demo/ShippingCalculator.cs",
+    "line": 9,
+    "agents": [
+      "quality"
+    ],
+    "kind": "complexity",
+    "note": "four levels of nesting; guard clauses would flatten"
+  },
+  {
+    "id": "magic-numbers",
+    "file": "src/Demo/ShippingCalculator.cs",
+    "line": 17,
+    "agents": [
+      "quality"
+    ],
+    "kind": "magic-number",
+    "note": "unexplained rate constants"
+  }
+]

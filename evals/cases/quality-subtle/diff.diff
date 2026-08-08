@@ -1,0 +1,40 @@
+diff --git a/src/Demo/ShippingCalculator.cs b/src/Demo/ShippingCalculator.cs
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/src/Demo/ShippingCalculator.cs
+@@ -0,0 +1,34 @@
++using System;
++
++namespace Demo;
++
++public class ShippingCalculator
++{
++    public decimal Calculate(decimal weight, int zone, bool express, bool insured)
++    {
++        if (weight > 0)
++        {
++            if (zone > 0)
++            {
++                if (express)
++                {
++                    if (insured)
++                    {
++                        return weight * 4.75m + 12.50m + 3.99m;
++                    }
++
++                    return weight * 4.75m + 12.50m;
++                }
++
++                if (insured)
++                {
++                    return weight * 2.15m + 3.99m;
++                }
++
++                return weight * 2.15m;
++            }
++        }
++
++        return 0m;
++    }
++}

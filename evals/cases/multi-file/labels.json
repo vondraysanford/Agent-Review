@@ -1,0 +1,32 @@
+[
+  {
+    "id": "magic-number",
+    "file": "src/Demo/ReportBuilder.cs",
+    "line": 10,
+    "agents": [
+      "quality"
+    ],
+    "kind": "magic-number",
+    "note": "0.0825 unexplained"
+  },
+  {
+    "id": "duplicated-branch",
+    "file": "src/Demo/ReportBuilder.cs",
+    "line": 13,
+    "agents": [
+      "quality"
+    ],
+    "kind": "duplication",
+    "note": "refund branch duplicates sales branch"
+  },
+  {
+    "id": "wrong-doc-rate",
+    "file": "docs/reports.md",
+    "line": 3,
+    "agents": [
+      "docs"
+    ],
+    "kind": "stale-doc",
+    "note": "doc says 8 percent, code uses 8.25 percent"
+  }
+]

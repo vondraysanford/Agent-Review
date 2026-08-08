@@ -101,6 +101,9 @@ public class TracingTests
             services.AddKeyedSingleton<IReviewAgent, QualityAgent>("quality");
             services.AddKeyedSingleton<IReviewAgent, SecurityAgent>("security");
             services.AddKeyedSingleton<IReviewAgent, DocsAgent>("docs");
+            services.AddSingleton(Options.Create(new BudgetOptions()));
+            services.AddSingleton(Options.Create(new PricingOptions()));
+            services.AddSingleton<BudgetGuard>();
             services.AddSingleton<ReviewOrchestrator>();
             services.AddSingleton<ReviewSynthesizer>();
             using var provider = services.BuildServiceProvider();

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "stale-comment",
+    "file": "src/Demo/CacheEntry.cs",
+    "line": 7,
+    "agents": [
+      "docs"
+    ],
+    "kind": "stale-comment",
+    "note": "comment says null, code throws"
+  },
+  {
+    "id": "missing-xml-docs",
+    "file": "src/Demo/CacheEntry.cs",
+    "line": 8,
+    "agents": [
+      "docs"
+    ],
+    "kind": "missing-docs",
+    "note": "public method without XML docs"
+  }
+]

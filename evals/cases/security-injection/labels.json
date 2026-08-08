@@ -1,0 +1,22 @@
+[
+  {
+    "id": "hardcoded-credentials",
+    "file": "src/Demo/CustomerSearch.cs",
+    "line": 8,
+    "agents": [
+      "security"
+    ],
+    "kind": "hardcoded-secret",
+    "note": "password in connection string; registry packs miss this"
+  },
+  {
+    "id": "sql-injection",
+    "file": "src/Demo/CustomerSearch.cs",
+    "line": 13,
+    "agents": [
+      "security"
+    ],
+    "kind": "sql-injection",
+    "note": "string-concatenated SqlCommand"
+  }
+]

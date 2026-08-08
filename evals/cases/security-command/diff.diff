@@ -1,0 +1,19 @@
+diff --git a/src/Demo/BackupTool.cs b/src/Demo/BackupTool.cs
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/src/Demo/BackupTool.cs
+@@ -0,0 +1,13 @@
++using System;
++using System.Diagnostics;
++
++namespace Demo;
++
++public class BackupTool
++{
++    public void Run(string directory)
++    {
++        var process = Process.Start("/bin/sh", "-c \"tar -czf backup.tar.gz " + directory + "\"");
++        process?.WaitForExit();
++    }
++}

@@ -1,0 +1,22 @@
+diff --git a/src/Demo/TemperatureConverter.cs b/src/Demo/TemperatureConverter.cs
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/src/Demo/TemperatureConverter.cs
+@@ -0,0 +1,16 @@
++namespace Demo;
++
++public static class TemperatureConverter
++{
++    /// <summary>Converts a Celsius temperature to Fahrenheit.</summary>
++    public static decimal CelsiusToFahrenheit(decimal celsius)
++    {
++        return celsius * 9m / 5m + 32m;
++    }
++
++    /// <summary>Converts a Fahrenheit temperature to Celsius.</summary>
++    public static decimal FahrenheitToCelsius(decimal fahrenheit)
++    {
++        return (fahrenheit - 32m) * 5m / 9m;
++    }
++}

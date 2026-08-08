@@ -1,0 +1,28 @@
+diff --git a/src/Demo/InvoicePrinter.cs b/src/Demo/InvoicePrinter.cs
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/src/Demo/InvoicePrinter.cs
+@@ -0,0 +1,22 @@
++using System;
++
++namespace Demo;
++
++public class InvoicePrinter
++{
++    public decimal PrintInvoice(decimal amount, decimal taxRate)
++    {
++        int unused = 42;
++        var total = amount + amount * taxRate;
++        Console.WriteLine("Invoice total: " + total);
++        return total;
++        Console.WriteLine("never runs");
++    }
++
++    public decimal PrintReceipt(decimal amount, decimal taxRate)
++    {
++        var total = amount + amount * taxRate;
++        Console.WriteLine("Receipt total: " + total);
++        return total;
++    }
++}

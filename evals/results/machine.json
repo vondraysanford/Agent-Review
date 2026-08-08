@@ -1,0 +1,333 @@
+{
+  "generatedAtUtc": "2026-08-08T01:21:36.0084920Z",
+  "cases": [
+    {
+      "case": "clean",
+      "labels": 0,
+      "perAgent": {
+        "quality": {
+          "labelsTotal": 0,
+          "labelsFound": 0,
+          "findingsTotal": 0,
+          "findingsMatched": 0,
+          "recall": null
+        },
+        "security": {
+          "labelsTotal": 0,
+          "labelsFound": 0,
+          "findingsTotal": 0,
+          "findingsMatched": 0,
+          "recall": null
+        },
+        "docs": {
+          "labelsTotal": 0,
+          "labelsFound": 0,
+          "findingsTotal": 3,
+          "findingsMatched": 0,
+          "recall": null
+        }
+      },
+      "synthesized": {
+        "labelsTotal": 0,
+        "labelsFound": 0,
+        "findingsTotal": 3,
+        "findingsMatched": 0,
+        "recall": null
+      },
+      "latencySeconds": 10,
+      "inputTokens": 3656,
+      "outputTokens": 841,
+      "llmCalls": 3,
+      "toolCalls": 2,
+      "toolFailures": 0,
+      "costUsd": 0.039305
+    },
+    {
+      "case": "docs-gaps",
+      "labels": 2,
+      "perAgent": {
+        "quality": {
+          "labelsTotal": 0,
+          "labelsFound": 0,
+          "findingsTotal": 4,
+          "findingsMatched": 0,
+          "recall": null
+        },
+        "security": {
+          "labelsTotal": 0,
+          "labelsFound": 0,
+          "findingsTotal": 0,
+          "findingsMatched": 0,
+          "recall": null
+        },
+        "docs": {
+          "labelsTotal": 2,
+          "labelsFound": 2,
+          "findingsTotal": 3,
+          "findingsMatched": 2,
+          "recall": 1
+        }
+      },
+      "synthesized": {
+        "labelsTotal": 2,
+        "labelsFound": 1,
+        "findingsTotal": 6,
+        "findingsMatched": 1,
+        "recall": 0.5
+      },
+      "latencySeconds": 12.4,
+      "inputTokens": 4093,
+      "outputTokens": 1644,
+      "llmCalls": 4,
+      "toolCalls": 2,
+      "toolFailures": 0,
+      "costUsd": 0.061565
+    },
+    {
+      "case": "mixed-all",
+      "labels": 5,
+      "perAgent": {
+        "quality": {
+          "labelsTotal": 2,
+          "labelsFound": 2,
+          "findingsTotal": 7,
+          "findingsMatched": 2,
+          "recall": 1
+        },
+        "security": {
+          "labelsTotal": 2,
+          "labelsFound": 2,
+          "findingsTotal": 2,
+          "findingsMatched": 2,
+          "recall": 1
+        },
+        "docs": {
+          "labelsTotal": 1,
+          "labelsFound": 1,
+          "findingsTotal": 4,
+          "findingsMatched": 1,
+          "recall": 1
+        }
+      },
+      "synthesized": {
+        "labelsTotal": 5,
+        "labelsFound": 4,
+        "findingsTotal": 11,
+        "findingsMatched": 4,
+        "recall": 0.8
+      },
+      "latencySeconds": 13.7,
+      "inputTokens": 4757,
+      "outputTokens": 2283,
+      "llmCalls": 4,
+      "toolCalls": 2,
+      "toolFailures": 0,
+      "costUsd": 0.08086
+    },
+    {
+      "case": "multi-file",
+      "labels": 3,
+      "perAgent": {
+        "quality": {
+          "labelsTotal": 2,
+          "labelsFound": 1,
+          "findingsTotal": 6,
+          "findingsMatched": 2,
+          "recall": 0.5
+        },
+        "security": {
+          "labelsTotal": 0,
+          "labelsFound": 0,
+          "findingsTotal": 0,
+          "findingsMatched": 0,
+          "recall": null
+        },
+        "docs": {
+          "labelsTotal": 1,
+          "labelsFound": 1,
+          "findingsTotal": 3,
+          "findingsMatched": 2,
+          "recall": 1
+        }
+      },
+      "synthesized": {
+        "labelsTotal": 3,
+        "labelsFound": 2,
+        "findingsTotal": 8,
+        "findingsMatched": 3,
+        "recall": 0.6666666666666666
+      },
+      "latencySeconds": 15.6,
+      "inputTokens": 4801,
+      "outputTokens": 2244,
+      "llmCalls": 4,
+      "toolCalls": 2,
+      "toolFailures": 0,
+      "costUsd": 0.080105
+    },
+    {
+      "case": "quality-basics",
+      "labels": 3,
+      "perAgent": {
+        "quality": {
+          "labelsTotal": 3,
+          "labelsFound": 3,
+          "findingsTotal": 5,
+          "findingsMatched": 4,
+          "recall": 1
+        },
+        "security": {
+          "labelsTotal": 0,
+          "labelsFound": 0,
+          "findingsTotal": 0,
+          "findingsMatched": 0,
+          "recall": null
+        },
+        "docs": {
+          "labelsTotal": 0,
+          "labelsFound": 0,
+          "findingsTotal": 4,
+          "findingsMatched": 0,
+          "recall": null
+        }
+      },
+      "synthesized": {
+        "labelsTotal": 3,
+        "labelsFound": 3,
+        "findingsTotal": 9,
+        "findingsMatched": 4,
+        "recall": 1
+      },
+      "latencySeconds": 12.1,
+      "inputTokens": 4294,
+      "outputTokens": 1894,
+      "llmCalls": 4,
+      "toolCalls": 2,
+      "toolFailures": 0,
+      "costUsd": 0.06882
+    },
+    {
+      "case": "quality-subtle",
+      "labels": 2,
+      "perAgent": {
+        "quality": {
+          "labelsTotal": 2,
+          "labelsFound": 2,
+          "findingsTotal": 6,
+          "findingsMatched": 2,
+          "recall": 1
+        },
+        "security": {
+          "labelsTotal": 0,
+          "labelsFound": 0,
+          "findingsTotal": 0,
+          "findingsMatched": 0,
+          "recall": null
+        },
+        "docs": {
+          "labelsTotal": 0,
+          "labelsFound": 0,
+          "findingsTotal": 2,
+          "findingsMatched": 0,
+          "recall": null
+        }
+      },
+      "synthesized": {
+        "labelsTotal": 2,
+        "labelsFound": 2,
+        "findingsTotal": 8,
+        "findingsMatched": 2,
+        "recall": 1
+      },
+      "latencySeconds": 15.6,
+      "inputTokens": 4328,
+      "outputTokens": 2148,
+      "llmCalls": 4,
+      "toolCalls": 2,
+      "toolFailures": 0,
+      "costUsd": 0.07534
+    },
+    {
+      "case": "security-command",
+      "labels": 1,
+      "perAgent": {
+        "quality": {
+          "labelsTotal": 0,
+          "labelsFound": 0,
+          "findingsTotal": 5,
+          "findingsMatched": 0,
+          "recall": null
+        },
+        "security": {
+          "labelsTotal": 1,
+          "labelsFound": 1,
+          "findingsTotal": 1,
+          "findingsMatched": 1,
+          "recall": 1
+        },
+        "docs": {
+          "labelsTotal": 0,
+          "labelsFound": 0,
+          "findingsTotal": 2,
+          "findingsMatched": 0,
+          "recall": null
+        }
+      },
+      "synthesized": {
+        "labelsTotal": 1,
+        "labelsFound": 1,
+        "findingsTotal": 7,
+        "findingsMatched": 1,
+        "recall": 1
+      },
+      "latencySeconds": 12.2,
+      "inputTokens": 4101,
+      "outputTokens": 1768,
+      "llmCalls": 4,
+      "toolCalls": 2,
+      "toolFailures": 0,
+      "costUsd": 0.064705
+    },
+    {
+      "case": "security-injection",
+      "labels": 2,
+      "perAgent": {
+        "quality": {
+          "labelsTotal": 0,
+          "labelsFound": 0,
+          "findingsTotal": 4,
+          "findingsMatched": 0,
+          "recall": null
+        },
+        "security": {
+          "labelsTotal": 2,
+          "labelsFound": 2,
+          "findingsTotal": 2,
+          "findingsMatched": 2,
+          "recall": 1
+        },
+        "docs": {
+          "labelsTotal": 0,
+          "labelsFound": 0,
+          "findingsTotal": 2,
+          "findingsMatched": 0,
+          "recall": null
+        }
+      },
+      "synthesized": {
+        "labelsTotal": 2,
+        "labelsFound": 2,
+        "findingsTotal": 7,
+        "findingsMatched": 2,
+        "recall": 1
+      },
+      "latencySeconds": 13,
+      "inputTokens": 4484,
+      "outputTokens": 1935,
+      "llmCalls": 4,
+      "toolCalls": 2,
+      "toolFailures": 0,
+      "costUsd": 0.070795
+    }
+  ]
+}

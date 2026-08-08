@@ -87,6 +87,13 @@ builder.Services.AddOptions<AgentReview.Orchestrator.PricingOptions>()
     .ValidateOnStart();
 builder.Services.AddSingleton<AgentReview.Orchestrator.RunSummaryCollector>();
 
+builder.Services.AddOptions<AgentReview.Orchestrator.BudgetOptions>()
+    .Bind(builder.Configuration.GetSection(AgentReview.Orchestrator.BudgetOptions.SectionName))
+    .Validate(o => o.MaxPerReviewUsd >= 0, "Budget:MaxPerReviewUsd must be non-negative.")
+    .ValidateOnStart();
+builder.Services.AddSingleton<AgentReview.Orchestrator.BudgetGuard>();
+builder.Services.AddSingleton<AgentReview.Orchestrator.EvalRunner>();
+
 using var host = builder.Build();
 var logger = host.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Orchestrator");
 
@@ -105,6 +112,8 @@ string? repoArg = null;
 string? refArg = null;
 var harnessMode = false;
 var allMode = false;
+var evalMode = false;
+var scoreMode = false;
 var agentName = "quality";
 for (var i = 0; i < args.Length; i++)
 {
@@ -119,6 +128,12 @@ for (var i = 0; i < args.Length; i++)
         case "--all":
             allMode = true;
             break;
+        case "--eval":
+            evalMode = true;
+            break;
+        case "--score":
+            scoreMode = true;
+            break;
         case "--repo":
             repoArg = ++i < args.Length ? args[i] : null;
             break;
@@ -131,10 +146,11 @@ for (var i = 0; i < args.Length; i++)
     }
 }
 
-if (diffPath is null && !harnessMode)
+if (diffPath is null && !harnessMode && !evalMode)
 {
-    Console.Error.WriteLine("Usage: dotnet run --project src/AgentReview.Orchestrator -- <path-to-diff> [--repo owner/name] [--ref branch-or-sha]");
-    Console.Error.WriteLine("       dotnet run --project src/AgentReview.Orchestrator -- --harness [--repo owner/name] [--ref branch-or-sha]");
+    Console.Error.WriteLine("Usage: dotnet run --project src/AgentReview.Orchestrator -- <path-to-diff> [--agent name | --all] [--repo owner/name] [--ref branch-or-sha]");
+    Console.Error.WriteLine("       dotnet run --project src/AgentReview.Orchestrator -- --harness [--agent name | --all]");
+    Console.Error.WriteLine("       dotnet run --project src/AgentReview.Orchestrator -- --eval [--score]");
     return 2;
 }
 
@@ -156,6 +172,24 @@ if (repoArg is not null)
     }
 
     repo = new RepoReference(parts[0], parts[1], refArg);
+}
+
+if (evalMode)
+{
+    var evalRunner = host.Services.GetRequiredService<AgentReview.Orchestrator.EvalRunner>();
+    var casesDir = Path.Combine(Directory.GetCurrentDirectory(), "evals", "cases");
+    var resultsDir = Path.Combine(Directory.GetCurrentDirectory(), "evals", "results");
+    try
+    {
+        return scoreMode
+            ? await evalRunner.ScoreAsync(resultsDir)
+            : await evalRunner.RunAsync(casesDir, resultsDir);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Eval run failed");
+        return 1;
+    }
 }
 
 var agent = host.Services.GetKeyedService<IReviewAgent>(agentName);

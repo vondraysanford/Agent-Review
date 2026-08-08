@@ -1,0 +1,12 @@
+[
+  {
+    "id": "command-injection",
+    "file": "src/Demo/BackupTool.cs",
+    "line": 10,
+    "agents": [
+      "security"
+    ],
+    "kind": "command-injection",
+    "note": "user input concatenated into shell command"
+  }
+]

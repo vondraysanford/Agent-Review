@@ -1,0 +1,25 @@
+diff --git a/src/Demo/AccountService.cs b/src/Demo/AccountService.cs
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/src/Demo/AccountService.cs
+@@ -0,0 +1,19 @@
++using System;
++using Microsoft.Data.SqlClient;
++
++namespace Demo;
++
++public class AccountService
++{
++    private const string ConnectionString = "Server=prod-db;Database=accounts;User Id=svc;Password=hunter2;";
++
++    // Returns null when the account does not exist.
++    public SqlCommand FindAccount(string accountName)
++    {
++        int unused = 42;
++        var conn = new SqlConnection(ConnectionString);
++        var cmd = new SqlCommand("SELECT * FROM Accounts WHERE Name = '" + accountName + "'", conn);
++        return cmd;
++        Console.WriteLine("never runs");
++    }
++}

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "unused-variable",
+    "file": "src/Demo/InvoicePrinter.cs",
+    "line": 9,
+    "agents": [
+      "quality"
+    ],
+    "kind": "unused-variable",
+    "note": "int unused = 42"
+  },
+  {
+    "id": "unreachable-code",
+    "file": "src/Demo/InvoicePrinter.cs",
+    "line": 13,
+    "agents": [
+      "quality"
+    ],
+    "kind": "unreachable-code",
+    "note": "WriteLine after return"
+  },
+  {
+    "id": "duplicated-method",
+    "file": "src/Demo/InvoicePrinter.cs",
+    "line": 16,
+    "agents": [
+      "quality"
+    ],
+    "kind": "duplication",
+    "note": "PrintReceipt duplicates PrintInvoice"
+  }
+]
