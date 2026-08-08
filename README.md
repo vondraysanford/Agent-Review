@@ -111,7 +111,7 @@ The first artifact is a working MCP server, not an agent. A server drops into Cl
 ### Phase 4 — Orchestration and Synthesis
 
 - [x] Orchestrator fans one diff out to all three agents concurrently (verified 2026-08-07: `--all` on the security sample ran quality, security, and docs simultaneously; 31.0s of summed agent time completed in 13.7s of wall clock, with both MCP tools multiplexing concurrently over the single stdio server connection. A failing agent is captured in its result slot without sinking the run, pinned by tests including a deadlock-gate concurrency test. 59 unit tests green)
-- [ ] Synthesis: deduplicate overlapping findings, resolve conflicts with a stated rule or an LLM arbiter, rank by severity
+- [x] Synthesis: deduplicate overlapping findings, resolve conflicts with a stated rule or an LLM arbiter, rank by severity (verified 2026-08-07: hybrid design, an LLM arbiter clusters same-line findings that restate one issue but never rewrites them, then stated rules pick survivors: tool-backed beats LLM, then higher severity, then security > quality > docs; survivor keeps the cluster's max severity. Live `--all` runs merged the quality-LLM SQL-concatenation duplicate into Semgrep's SQLi finding (`kept semgrep, dropped quality-llm` in the logs) while distinct same-line findings survived. LLM sources are stamped with their agent (`quality-llm`, `docs-llm`) in the synthesized review so provenance stays exact. Arbiter failure degrades to an unmerged review, never an altered one. 67 unit tests green)
 - [ ] End-to-end test on a diff with planted issues produces one coherent, ordered review
 
 ### Phase 5 — Observability and Evals
