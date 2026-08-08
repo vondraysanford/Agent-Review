@@ -121,7 +121,7 @@ The first artifact is a working MCP server, not an agent. A server drops into Cl
 ### Phase 5 — Observability and Evals
 
 - [x] OpenTelemetry tracing: per-agent decisions, tool calls, latency, token usage (verified 2026-08-07: `Telemetry__Enabled=true` on an `--all` run exports the full span tree via the console exporter: `review.fanout` with agents.succeeded, three overlapping `agent.review` spans, `tool.analyze_csharp`/`tool.run_semgrep`, per-call `llm.complete` with input/output token tags, and `synthesis` with duplicates.merged. Instrumentation is in-box ActivitySource in the library, zero new dependencies there; only the Orchestrator host takes OpenTelemetry.Extensions.Hosting + Exporter.Console 1.17.0, off by default so demo output stays clean. 72 unit tests green including listener-based span assertions)
-- [ ] Run summary per review: total latency, total tokens, tool-call success rate, cost
+- [x] Run summary per review: total latency, total tokens, tool-call success rate, cost (verified 2026-08-07: every `--all` run ends with the aggregated line, e.g. `summary: 15.5s fan-out, 4 LLM call(s) (4668 in / 2023 out tokens), 2/2 tool call(s) ok, ~$0.074 at configured rates`. Numbers aggregate in-process from the same OpenTelemetry span tags the exporter consumes, keyed by trace id; token counts are measured, cost is measured tokens times the configured per-MTok rates and labeled as such. 76 unit tests green)
 - [ ] Eval harness: seeded PRs with planted bugs; report per-agent precision and agreement with a human review
 - [ ] Results table in this README filled with measured numbers
 

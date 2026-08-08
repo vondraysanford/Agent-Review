@@ -81,6 +81,12 @@ builder.Services.AddOptions<AgentReview.Orchestrator.SynthesisOptions>()
     .Validate(o => o.MaxOutputTokens > 0, "Synthesis:MaxOutputTokens must be positive.")
     .ValidateOnStart();
 
+builder.Services.AddOptions<AgentReview.Orchestrator.PricingOptions>()
+    .Bind(builder.Configuration.GetSection(AgentReview.Orchestrator.PricingOptions.SectionName))
+    .Validate(o => o.InputPerMillionTokens >= 0 && o.OutputPerMillionTokens >= 0, "Pricing rates must be non-negative.")
+    .ValidateOnStart();
+builder.Services.AddSingleton<AgentReview.Orchestrator.RunSummaryCollector>();
+
 using var host = builder.Build();
 var logger = host.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Orchestrator");
 
@@ -170,10 +176,18 @@ var diff = await File.ReadAllTextAsync(diffPath!);
 
 if (allMode)
 {
+    using var collector = host.Services.GetRequiredService<AgentReview.Orchestrator.RunSummaryCollector>();
     var orchestrator = host.Services.GetRequiredService<AgentReview.Orchestrator.ReviewOrchestrator>();
-    var review = await orchestrator.ReviewAsync(new ReviewRequest(diff, repo));
-    var synthesized = await host.Services.GetRequiredService<AgentReview.Orchestrator.ReviewSynthesizer>()
-        .SynthesizeAsync(review);
+    var synthesizer = host.Services.GetRequiredService<AgentReview.Orchestrator.ReviewSynthesizer>();
+
+    AgentReview.Orchestrator.SynthesizedReview synthesized;
+    System.Diagnostics.ActivityTraceId traceId;
+    using (var reviewActivity = new System.Diagnostics.Activity("review").Start())
+    {
+        traceId = reviewActivity.TraceId;
+        var review = await orchestrator.ReviewAsync(new ReviewRequest(diff, repo));
+        synthesized = await synthesizer.SynthesizeAsync(review);
+    }
 
     Console.WriteLine(JsonSerializer.Serialize(synthesized.Findings, outputJson));
 
@@ -186,7 +200,12 @@ if (allMode)
 
     Console.WriteLine(
         $"{synthesized.Findings.Count} finding(s) after synthesis, {synthesized.DuplicatesMerged} duplicate(s) merged, fan-out {synthesized.TotalElapsed.TotalSeconds:F1}s");
-    return review.AnySucceeded ? 0 : 1;
+
+    var summary = collector.Collect(traceId);
+    var cost = summary.EstimatedCostUsd is { } usd ? $", ~${usd:F3} at configured rates" : "";
+    Console.WriteLine(
+        $"summary: {summary.TotalLatency.TotalSeconds:F1}s fan-out, {summary.LlmCalls} LLM call(s) ({summary.InputTokens} in / {summary.OutputTokens} out tokens), {summary.ToolCalls - summary.ToolFailures}/{summary.ToolCalls} tool call(s) ok{cost}");
+    return synthesized.Runs.Any(r => r.Findings is not null) ? 0 : 1;
 }
 
 var stopwatch = Stopwatch.StartNew();
