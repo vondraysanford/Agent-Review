@@ -1,0 +1,26 @@
+[
+  {
+    "issue": "New public type \u0060TemperatureConverter\u0060 has no XML documentation comment.",
+    "file": "src/Demo/TemperatureConverter.cs",
+    "line": 3,
+    "severity": "Warning",
+    "suggestion": "/// \u003Csummary\u003E\n/// Provides conversions between Celsius and Fahrenheit temperature scales.\n/// \u003C/summary\u003E\npublic static class TemperatureConverter",
+    "source": "docs-llm"
+  },
+  {
+    "issue": "New public method \u0060CelsiusToFahrenheit\u0060 has no XML documentation comment describing its parameter and return value.",
+    "file": "src/Demo/TemperatureConverter.cs",
+    "line": 5,
+    "severity": "Warning",
+    "suggestion": "/// \u003Csummary\u003E\n/// Converts a temperature expressed in degrees Celsius to degrees Fahrenheit.\n/// \u003C/summary\u003E\n/// \u003Cparam name=\u0022celsius\u0022\u003EThe temperature in degrees Celsius.\u003C/param\u003E\n/// \u003Creturns\u003EThe equivalent temperature in degrees Fahrenheit.\u003C/returns\u003E\npublic static decimal CelsiusToFahrenheit(decimal celsius)",
+    "source": "docs-llm"
+  },
+  {
+    "issue": "New public method \u0060FahrenheitToCelsius\u0060 has no XML documentation comment describing its parameter and return value.",
+    "file": "src/Demo/TemperatureConverter.cs",
+    "line": 10,
+    "severity": "Warning",
+    "suggestion": "/// \u003Csummary\u003E\n/// Converts a temperature expressed in degrees Fahrenheit to degrees Celsius.\n/// \u003C/summary\u003E\n/// \u003Cparam name=\u0022fahrenheit\u0022\u003EThe temperature in degrees Fahrenheit.\u003C/param\u003E\n/// \u003Creturns\u003EThe equivalent temperature in degrees Celsius.\u003C/returns\u003E\npublic static decimal FahrenheitToCelsius(decimal fahrenheit)",
+    "source": "docs-llm"
+  }
+]

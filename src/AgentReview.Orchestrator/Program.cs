@@ -203,7 +203,8 @@ async Task<int> RunHarnessAsync()
         return 2;
     }
 
-    var reviewsDir = Path.Combine(samplesDir, "reviews", agent.Name);
+    var label = allMode ? "synthesized" : agent.Name;
+    var reviewsDir = Path.Combine(samplesDir, "reviews", label);
     Directory.CreateDirectory(reviewsDir);
 
     var failures = 0;
@@ -214,7 +215,18 @@ async Task<int> RunHarnessAsync()
         try
         {
             var sampleDiff = await File.ReadAllTextAsync(sampleFile);
-            var findings = await agent.ReviewAsync(new ReviewRequest(sampleDiff, repo));
+            IReadOnlyList<Finding> findings;
+            if (allMode)
+            {
+                var orchestrator = host.Services.GetRequiredService<AgentReview.Orchestrator.ReviewOrchestrator>();
+                var synthesizer = host.Services.GetRequiredService<AgentReview.Orchestrator.ReviewSynthesizer>();
+                var fanOut = await orchestrator.ReviewAsync(new ReviewRequest(sampleDiff, repo));
+                findings = (await synthesizer.SynthesizeAsync(fanOut)).Findings;
+            }
+            else
+            {
+                findings = await agent.ReviewAsync(new ReviewRequest(sampleDiff, repo));
+            }
 
             var errors = ValidateSchema(findings, sampleDiff);
             var reviewJson = JsonSerializer.Serialize(findings, outputJson);
@@ -228,18 +240,18 @@ async Task<int> RunHarnessAsync()
             {
                 await File.WriteAllTextAsync(Path.Combine(reviewsDir, $"{name}.review.json"), reviewJson + "\n");
                 var bySource = findings.GroupBy(f => f.Source).OrderBy(g => g.Key).Select(g => $"{g.Key}:{g.Count()}");
-                summary.Add($"PASS {agent.Name}/{name}: {findings.Count} finding(s) [{string.Join(", ", bySource)}]");
+                summary.Add($"PASS {label}/{name}: {findings.Count} finding(s) [{string.Join(", ", bySource)}]");
             }
             else
             {
                 failures++;
-                summary.Add($"FAIL {agent.Name}/{name}: {string.Join("; ", errors)}");
+                summary.Add($"FAIL {label}/{name}: {string.Join("; ", errors)}");
             }
         }
         catch (Exception ex)
         {
             failures++;
-            summary.Add($"FAIL {agent.Name}/{name}: {ex.Message}");
+            summary.Add($"FAIL {label}/{name}: {ex.Message}");
         }
     }
 
@@ -271,6 +283,14 @@ static List<string> ValidateSchema(IReadOnlyList<Finding> findings, string sampl
         if (f.Line < 1) errors.Add($"line {f.Line} out of range at {f.File}");
         if (!Enum.IsDefined(f.Severity)) errors.Add($"undefined severity at {f.File}:{f.Line}");
         if (!diffPaths.Contains(f.File)) errors.Add($"file {f.File} not in the diff");
+    }
+
+    for (var i = 1; i < findings.Count; i++)
+    {
+        if (findings[i].Severity > findings[i - 1].Severity)
+        {
+            errors.Add($"ordering violated at index {i}: {findings[i].Severity} after {findings[i - 1].Severity}");
+        }
     }
 
     return errors;

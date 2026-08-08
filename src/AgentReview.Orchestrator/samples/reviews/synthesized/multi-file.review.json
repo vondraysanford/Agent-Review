@@ -1,0 +1,66 @@
+[
+  {
+    "issue": "The refund branch adds tax to the total just like the sales branch, which likely does not reflect refund semantics and reads as a copy-paste slip.",
+    "file": "src/Demo/ReportBuilder.cs",
+    "line": 16,
+    "severity": "Error",
+    "suggestion": "Confirm the intended refund arithmetic (likely \u0060report.Total - s\u0060 or a negative total) and make the difference from the sales branch explicit.",
+    "source": "quality-llm"
+  },
+  {
+    "issue": "The new documentation sentence states that sales and refund reports include tax but omits the rate applied and that the printed Total is tax-inclusive, so it does not fully describe the new behaviour.",
+    "file": "docs/reports.md",
+    "line": 3,
+    "severity": "Warning",
+    "suggestion": "Sales and refund reports append a tax line calculated at 8.25% of the report total, and the printed Total includes that tax.",
+    "source": "docs-llm"
+  },
+  {
+    "issue": "The public Build method now branches on report.Kind and adds tax to the returned total, but it has no XML doc comment describing the Kind values it recognises or that the returned text includes tax.",
+    "file": "src/Demo/ReportBuilder.cs",
+    "line": 8,
+    "severity": "Warning",
+    "suggestion": "Add above the method: /// \u003Csummary\u003EBuilds the report text.\u003C/summary\u003E\n/// \u003Cparam name=\u0022report\u0022\u003EThe report to render. When \u003Csee cref=\u0022Report.Kind\u0022/\u003E is \u0022sales\u0022 or \u0022refund\u0022, an 8.25% tax line and a tax-inclusive total are appended.\u003C/param\u003E\n/// \u003Creturns\u003EThe formatted report header, followed by the tax and total lines for sales and refund reports.\u003C/returns\u003E",
+    "source": "docs-llm"
+  },
+  {
+    "issue": "Report kinds are compared against raw string literals, making the branching fragile and easy to typo.",
+    "file": "src/Demo/ReportBuilder.cs",
+    "line": 8,
+    "severity": "Warning",
+    "suggestion": "Model \u0060Kind\u0060 as an enum (or at least named constants) and switch on it instead of comparing string literals.",
+    "source": "quality-llm"
+  },
+  {
+    "issue": "Magic number 0.0825 for the tax rate is hard-coded (twice) with no explanation.",
+    "file": "src/Demo/ReportBuilder.cs",
+    "line": 10,
+    "severity": "Warning",
+    "suggestion": "Introduce a named constant, e.g. \u0060private const decimal TaxRate = 0.0825m;\u0060, and use it in both places.",
+    "source": "quality-llm"
+  },
+  {
+    "issue": "Tax calculation and result-string construction are duplicated verbatim for the \u0022sales\u0022 and \u0022refund\u0022 branches, differing only by a label.",
+    "file": "src/Demo/ReportBuilder.cs",
+    "line": 10,
+    "severity": "Warning",
+    "suggestion": "Extract a helper such as \u0060BuildWithTax(header, report.Total, \u0022Sales tax\u0022)\u0060 and call it from both branches with the differing label.",
+    "source": "quality-llm"
+  },
+  {
+    "issue": "Variable name \u0060s\u0060 is uninformative for the computed tax amount.",
+    "file": "src/Demo/ReportBuilder.cs",
+    "line": 10,
+    "severity": "Info",
+    "suggestion": "Rename to \u0060tax\u0060 or \u0060taxAmount\u0060.",
+    "source": "quality-llm"
+  },
+  {
+    "issue": "Repeated string concatenation for report output makes the formatting hard to maintain and easy to get inconsistent between branches.",
+    "file": "src/Demo/ReportBuilder.cs",
+    "line": 11,
+    "severity": "Info",
+    "suggestion": "Use interpolated strings or a StringBuilder with a single shared format for the tax/total lines.",
+    "source": "quality-llm"
+  }
+]

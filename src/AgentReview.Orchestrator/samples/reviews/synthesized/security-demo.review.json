@@ -1,0 +1,66 @@
+[
+  {
+    "issue": "Hardcoded database credentials embedded in a connection string constant (User Id=app;Password=hunter2), exposing production DB credentials to anyone with source or binary access.",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 8,
+    "severity": "Error",
+    "suggestion": "Remove the literal password from source; load the connection string from configuration/secret storage (e.g. IConfiguration.GetConnectionString, environment variables, Azure Key Vault) and prefer integrated/managed identity authentication.",
+    "source": "security-llm"
+  },
+  {
+    "issue": "csharp.lang.security.sqli.csharp-sqli.csharp-sqli: Detected a formatted string in a SQL statement. This could lead to SQL injection if variables in the SQL statement are not properly sanitized. Use a prepared statements instead. You can obtain a PreparedStatement using \u0027SqlCommand\u0027 and \u0027SqlParameter\u0027.",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 13,
+    "severity": "Error",
+    "suggestion": null,
+    "source": "semgrep"
+  },
+  {
+    "issue": "New public type \u0060CustomerLookup\u0060 has no XML documentation comment.",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 6,
+    "severity": "Warning",
+    "suggestion": "/// \u003Csummary\u003E\n/// Builds ADO.NET commands for retrieving customer records from the CRM database.\n/// \u003C/summary\u003E\npublic class CustomerLookup",
+    "source": "docs-llm"
+  },
+  {
+    "issue": "New public method \u0060BuildQuery\u0060 has no XML documentation comment describing its parameter, return value, or the fact that the caller receives an undisposed command and connection.",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 10,
+    "severity": "Warning",
+    "suggestion": "/// \u003Csummary\u003E\n/// Creates a command that selects the customer rows matching the supplied name.\n/// \u003C/summary\u003E\n/// \u003Cparam name=\u0022customerName\u0022\u003EThe customer name to match.\u003C/param\u003E\n/// \u003Creturns\u003E\n/// A \u003Csee cref=\u0022SqlCommand\u0022/\u003E together with its unopened \u003Csee cref=\u0022SqlConnection\u0022/\u003E.\n/// The caller owns both objects and is responsible for opening the connection and disposing the command and its connection.\n/// \u003C/returns\u003E\npublic SqlCommand BuildQuery(string customerName)",
+    "source": "docs-llm"
+  },
+  {
+    "issue": "CA1822: Member \u0027BuildQuery\u0027 does not access instance data and can be marked as static",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 10,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "The method creates a SqlConnection and returns a SqlCommand holding it, leaving ownership/disposal responsibility ambiguous for callers.",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 12,
+    "severity": "Warning",
+    "suggestion": "Either execute the query inside this class with using blocks for the connection and command, or accept an externally owned SqlConnection as a parameter.",
+    "source": "quality-llm"
+  },
+  {
+    "issue": "The method name \u0060BuildQuery\u0060 and the absence of any remarks do not convey that the returned command embeds the caller-supplied value directly in the SQL text rather than as a parameter, which misleads callers about the contract.",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 13,
+    "severity": "Warning",
+    "suggestion": "Document the interpolation contract, e.g. add \u0060/// \u003Cremarks\u003EThe supplied \u003Cparamref name=\u0022customerName\u0022/\u003E is embedded into the SQL text; callers must supply only trusted, pre-validated values.\u003C/remarks\u003E\u0060 \u2014 or, preferably, use a parameterized command so the documentation can state that input is passed as a bound parameter.",
+    "source": "docs-llm"
+  },
+  {
+    "issue": "SELECT * couples the code to the current table shape; column changes silently alter results and readers cannot tell which fields are used.",
+    "file": "src/Demo/CustomerLookup.cs",
+    "line": 13,
+    "severity": "Warning",
+    "suggestion": "List the columns explicitly, e.g. SELECT Id, Name, Email FROM Customers WHERE ...",
+    "source": "quality-llm"
+  }
+]

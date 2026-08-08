@@ -1,0 +1,90 @@
+[
+  {
+    "issue": "Hardcoded database credentials (User Id and Password) embedded in a connection string constant.",
+    "file": "src/Demo/AccountService.cs",
+    "line": 8,
+    "severity": "Error",
+    "suggestion": "Move the connection string to secure configuration (e.g. environment variables, Azure Key Vault, or user secrets) and read it at runtime instead of compiling the password into the assembly; rotate the exposed \u0027hunter2\u0027 credential.",
+    "source": "security-llm"
+  },
+  {
+    "issue": "csharp.lang.security.sqli.csharp-sqli.csharp-sqli: Detected a formatted string in a SQL statement. This could lead to SQL injection if variables in the SQL statement are not properly sanitized. Use a prepared statements instead. You can obtain a PreparedStatement using \u0027SqlCommand\u0027 and \u0027SqlParameter\u0027.",
+    "file": "src/Demo/AccountService.cs",
+    "line": 15,
+    "severity": "Error",
+    "suggestion": null,
+    "source": "semgrep"
+  },
+  {
+    "issue": "New public type \u0060AccountService\u0060 has no XML documentation comment.",
+    "file": "src/Demo/AccountService.cs",
+    "line": 6,
+    "severity": "Warning",
+    "suggestion": "/// \u003Csummary\u003E\n/// Provides data-access operations for account records.\n/// \u003C/summary\u003E\npublic class AccountService",
+    "source": "docs-llm"
+  },
+  {
+    "issue": "The comment claims the method returns null when the account does not exist, but the method unconditionally returns a constructed \u003Cc\u003ESqlCommand\u003C/c\u003E and never queries for existence, so the comment contradicts the code.",
+    "file": "src/Demo/AccountService.cs",
+    "line": 10,
+    "severity": "Warning",
+    "suggestion": "Replace with an accurate summary, e.g.: /// \u003Csummary\u003EBuilds an unexecuted command that selects the account with the specified name.\u003C/summary\u003E (the method never returns \u003Cc\u003Enull\u003C/c\u003E).",
+    "source": "docs-llm"
+  },
+  {
+    "issue": "New public method \u0060FindAccount\u0060 has no XML documentation for its parameter, return value, or the fact that the caller owns the returned command and its connection.",
+    "file": "src/Demo/AccountService.cs",
+    "line": 11,
+    "severity": "Warning",
+    "suggestion": "/// \u003Csummary\u003E\n/// Creates a command that selects the account with the specified name. The command is not executed.\n/// \u003C/summary\u003E\n/// \u003Cparam name=\u0022accountName\u0022\u003EThe name of the account to look up.\u003C/param\u003E\n/// \u003Creturns\u003EA \u003Csee cref=\u0022SqlCommand\u0022/\u003E the caller is responsible for executing and disposing, along with its connection.\u003C/returns\u003E\npublic SqlCommand FindAccount(string accountName)",
+    "source": "docs-llm"
+  },
+  {
+    "issue": "CA1822: Member \u0027FindAccount\u0027 does not access instance data and can be marked as static",
+    "file": "src/Demo/AccountService.cs",
+    "line": 11,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "CS0219: The variable \u0027unused\u0027 is assigned but its value is never used",
+    "file": "src/Demo/AccountService.cs",
+    "line": 13,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "The created \u0060SqlConnection\u0060 is neither opened nor owned by any caller-visible scope, leaving disposal responsibility undocumented and easy to leak.",
+    "file": "src/Demo/AccountService.cs",
+    "line": 14,
+    "severity": "Warning",
+    "suggestion": "Create and dispose the connection inside a \u0060using\u0060 block within the method that actually executes the query, rather than handing a command with a detached connection back to callers.",
+    "source": "quality-llm"
+  },
+  {
+    "issue": "CS0162: Unreachable code detected",
+    "file": "src/Demo/AccountService.cs",
+    "line": 17,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "The method name \u0060FindAccount\u0060 misleads about behavior: it does not find or return an account, it only builds a SQL command object.",
+    "file": "src/Demo/AccountService.cs",
+    "line": 11,
+    "severity": "Info",
+    "suggestion": "Rename to something that reflects the behavior, such as \u0060CreateFindAccountCommand\u0060, or document explicitly that only a command is returned.",
+    "source": "docs-llm"
+  },
+  {
+    "issue": "\u0060SELECT *\u0060 couples the code to the table\u0027s column order/shape and hurts maintainability.",
+    "file": "src/Demo/AccountService.cs",
+    "line": 15,
+    "severity": "Info",
+    "suggestion": "List the columns explicitly, e.g. \u0060SELECT Id, Name, Status FROM Accounts WHERE Name = @name\u0060.",
+    "source": "quality-llm"
+  }
+]

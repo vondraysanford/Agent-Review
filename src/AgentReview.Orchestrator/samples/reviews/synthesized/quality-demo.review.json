@@ -1,0 +1,90 @@
+[
+  {
+    "issue": "New public type \u0060OrderProcessor\u0060 has no XML documentation comment.",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 5,
+    "severity": "Warning",
+    "suggestion": "/// \u003Csummary\u003E\n/// Calculates order and refund totals, including tax.\n/// \u003C/summary\u003E\npublic class OrderProcessor",
+    "source": "docs-llm"
+  },
+  {
+    "issue": "New public method \u0060ProcessOrder\u0060 has no XML documentation, and its abbreviated parameter names (\u0060amt\u0060, \u0060tx\u0060) do not convey their meaning or expected units/format.",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 7,
+    "severity": "Warning",
+    "suggestion": "/// \u003Csummary\u003E\n/// Calculates the total amount for an order, including tax.\n/// \u003C/summary\u003E\n/// \u003Cparam name=\u0022amt\u0022\u003EThe pre-tax order amount.\u003C/param\u003E\n/// \u003Cparam name=\u0022tx\u0022\u003EThe tax rate expressed as a decimal fraction (for example, 0.08 for 8%).\u003C/param\u003E\n/// \u003Creturns\u003EThe order amount plus the calculated tax.\u003C/returns\u003E\npublic decimal ProcessOrder(decimal amount, decimal taxRate)",
+    "source": "docs-llm"
+  },
+  {
+    "issue": "CA1822: Member \u0027ProcessOrder\u0027 does not access instance data and can be marked as static",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 7,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "CS0219: The variable \u0027unused\u0027 is assigned but its value is never used",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 9,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "CA1303: Method \u0027decimal OrderProcessor.ProcessOrder(decimal amt, decimal tx)\u0027 passes a literal string as parameter \u0027value\u0027 of a call to \u0027void Console.WriteLine(string? value)\u0027. Retrieve the following string(s) from a resource table instead: \u0022never runs\u0022.",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 13,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "CS0162: Unreachable code detected",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 13,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "New public method \u0060ProcessRefund\u0060 has no XML documentation, and its abbreviated parameter names (\u0060amt\u0060, \u0060tx\u0060) do not convey their meaning or expected units/format.",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 15,
+    "severity": "Warning",
+    "suggestion": "/// \u003Csummary\u003E\n/// Calculates the total amount to refund, including tax.\n/// \u003C/summary\u003E\n/// \u003Cparam name=\u0022amt\u0022\u003EThe pre-tax amount being refunded.\u003C/param\u003E\n/// \u003Cparam name=\u0022tx\u0022\u003EThe tax rate expressed as a decimal fraction (for example, 0.08 for 8%).\u003C/param\u003E\n/// \u003Creturns\u003EThe refund amount plus the calculated tax.\u003C/returns\u003E\npublic decimal ProcessRefund(decimal amount, decimal taxRate)",
+    "source": "docs-llm"
+  },
+  {
+    "issue": "CA1822: Member \u0027ProcessRefund\u0027 does not access instance data and can be marked as static",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 16,
+    "severity": "Warning",
+    "suggestion": null,
+    "source": "roslyn"
+  },
+  {
+    "issue": "Numbered local variable name \u0060total1\u0060 conveys no meaning and only exists to avoid a clash with \u0060total2\u0060 in the sibling method.",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 10,
+    "severity": "Info",
+    "suggestion": "Rename to \u0060total\u0060.",
+    "source": "quality-llm"
+  },
+  {
+    "issue": "\u0060ProcessRefund\u0060 is named as a refund operation but performs exactly the same computation as \u0060ProcessOrder\u0060 and returns a positive total, so the name misleads about the sign/semantics of the result without any documentation clarifying it.",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 15,
+    "severity": "Info",
+    "suggestion": "Document the intent explicitly, e.g. \u0022/// \u003Cremarks\u003EReturns the refund total as a positive value; callers are responsible for applying it as a credit.\u003C/remarks\u003E\u0022, or rename to something like \u0060CalculateTotalWithTax\u0060 if the two operations are genuinely identical.",
+    "source": "docs-llm"
+  },
+  {
+    "issue": "Numbered local variable name \u0060total2\u0060 is non-descriptive.",
+    "file": "src/Demo/OrderProcessor.cs",
+    "line": 18,
+    "severity": "Info",
+    "suggestion": "Rename to \u0060total\u0060.",
+    "source": "quality-llm"
+  }
+]

@@ -4,13 +4,13 @@
 [![C#](https://img.shields.io/badge/Language-C%23-239120)](https://learn.microsoft.com/dotnet/csharp/)
 [![MCP](https://img.shields.io/badge/MCP-Model%20Context%20Protocol-blue)](https://modelcontextprotocol.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Status: Phase 3 complete](https://img.shields.io/badge/Status-Phase%203%20complete-brightgreen)](#build-plan)
+[![Status: Phase 4 complete](https://img.shields.io/badge/Status-Phase%204%20complete-brightgreen)](#build-plan)
 
 A multi-agent system where specialized AI agents collaborate to review pull requests. An orchestrator routes a code diff to independent agents (one for code quality, one for security, one for documentation), then synthesizes their findings into a single ranked review. Agents reach real tools (Roslyn analyzers, Semgrep, the GitHub API) through the Model Context Protocol.
 
 Built in C#/.NET. That choice is the point: agentic tooling is overwhelmingly Python, and this project proves the same patterns work in the Microsoft ecosystem. It is the sibling of [DocQuery](https://github.com/vondraysanford/docquery), which made the same argument for RAG.
 
-> **✅ Status: Phase 3 complete.** All three agents (quality, security, docs) review real diffs independently through MCP tools and LLM reasoning, returning one locked schema; 15 committed sample reviews are the proof. Phases 4 to 6 below (orchestration, evals, API) are still the build plan.
+> **✅ Status: Phase 4 complete.** The orchestrator fans one diff out to three agents concurrently and synthesizes their findings into a single ranked review: arbiter-clustered dedupe, stated survivor rules, exact provenance. Committed sample reviews (per-agent and synthesized) are the proof. Phases 5 and 6 below (evals, API) are still the build plan.
 
 **The checkboxes in this README are an honesty contract. No box gets checked until the feature works end-to-end, verified in a terminal or a running app.**
 
@@ -112,7 +112,7 @@ The first artifact is a working MCP server, not an agent. A server drops into Cl
 
 - [x] Orchestrator fans one diff out to all three agents concurrently (verified 2026-08-07: `--all` on the security sample ran quality, security, and docs simultaneously; 31.0s of summed agent time completed in 13.7s of wall clock, with both MCP tools multiplexing concurrently over the single stdio server connection. A failing agent is captured in its result slot without sinking the run, pinned by tests including a deadlock-gate concurrency test. 59 unit tests green)
 - [x] Synthesis: deduplicate overlapping findings, resolve conflicts with a stated rule or an LLM arbiter, rank by severity (verified 2026-08-07: hybrid design, an LLM arbiter clusters same-line findings that restate one issue but never rewrites them, then stated rules pick survivors: tool-backed beats LLM, then higher severity, then security > quality > docs; survivor keeps the cluster's max severity. Live `--all` runs merged the quality-LLM SQL-concatenation duplicate into Semgrep's SQLi finding (`kept semgrep, dropped quality-llm` in the logs) while distinct same-line findings survived. LLM sources are stamped with their agent (`quality-llm`, `docs-llm`) in the synthesized review so provenance stays exact. Arbiter failure degrades to an unmerged review, never an altered one. 67 unit tests green)
-- [ ] End-to-end test on a diff with planted issues produces one coherent, ordered review
+- [x] End-to-end test on a diff with planted issues produces one coherent, ordered review (verified 2026-08-07: deterministic pipeline test runs the full DI stack over scripted fakes and asserts the exact seven-row ranked review, Errors first, every provenance lane agent-stamped; the scripted LLM routes on the real system prompts so prompt rewrites fail loudly. Live: `e2e-demo.diff` plants issues for all three domains and its synthesized review carries all five sources (roslyn, semgrep, quality/security/docs-llm) in one severity-ordered list; `--harness --all` commits synthesized reviews for all 6 samples with an ordering check. 69 unit tests green)
 
 ### Phase 5 — Observability and Evals
 
