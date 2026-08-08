@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/AgentReview.Agents/AgentReview.Agents.csproj" />
+    <Project Path="src/AgentReview.Api/AgentReview.Api.csproj" />
     <Project Path="src/AgentReview.McpServers.StaticAnalysis/AgentReview.McpServers.StaticAnalysis.csproj" />
     <Project Path="src/AgentReview.Orchestrator/AgentReview.Orchestrator.csproj" />
   </Folder>

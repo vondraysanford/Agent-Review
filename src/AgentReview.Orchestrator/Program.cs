@@ -2,9 +2,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using AgentReview.Agents;
 using AgentReview.Agents.Configuration;
-using AgentReview.Agents.GitHub;
-using AgentReview.Agents.Llm;
-using AgentReview.Agents.StaticAnalysis;
+using AgentReview.Orchestrator;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,75 +22,10 @@ var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
 });
 builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: false);
 
-builder.Services.AddOptions<AnthropicOptions>()
-    .Bind(builder.Configuration.GetSection(AnthropicOptions.SectionName))
-    .Validate(o => !string.IsNullOrWhiteSpace(o.Model), "Anthropic:Model is required.")
-    .Validate(
-        o => !string.IsNullOrWhiteSpace(o.ApiKey)
-            || !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY")),
-        "Anthropic API key missing: set Anthropic:ApiKey in appsettings.local.json (gitignored) or export ANTHROPIC_API_KEY.")
-    .ValidateOnStart();
-
-builder.Services.AddOptions<StaticAnalysisClientOptions>()
-    .Bind(builder.Configuration.GetSection(StaticAnalysisClientOptions.SectionName))
-    .Validate(o => !string.IsNullOrWhiteSpace(o.Command), "StaticAnalysisServer:Command is required.")
-    .ValidateOnStart();
-
-builder.Services.AddOptions<QualityAgentOptions>()
-    .Bind(builder.Configuration.GetSection(QualityAgentOptions.SectionName))
-    .Validate(o => o.MaxDiffChars > 0, "QualityAgent:MaxDiffChars must be positive.")
-    .Validate(o => o.MaxOutputTokens > 0, "QualityAgent:MaxOutputTokens must be positive.")
-    .ValidateOnStart();
-
-builder.Services.AddOptions<SecurityAgentOptions>()
-    .Bind(builder.Configuration.GetSection(SecurityAgentOptions.SectionName))
-    .Validate(o => o.MaxDiffChars > 0, "SecurityAgent:MaxDiffChars must be positive.")
-    .Validate(o => o.MaxOutputTokens > 0, "SecurityAgent:MaxOutputTokens must be positive.")
-    .Validate(o => !string.IsNullOrWhiteSpace(o.Ruleset), "SecurityAgent:Ruleset is required.")
-    .ValidateOnStart();
-
-builder.Services.AddOptions<DocsAgentOptions>()
-    .Bind(builder.Configuration.GetSection(DocsAgentOptions.SectionName))
-    .Validate(o => o.MaxDiffChars > 0, "DocsAgent:MaxDiffChars must be positive.")
-    .Validate(o => o.MaxOutputTokens > 0, "DocsAgent:MaxOutputTokens must be positive.")
-    .ValidateOnStart();
-
-builder.Services.AddOptions<GitHubMcpOptions>()
-    .Bind(builder.Configuration.GetSection(GitHubMcpOptions.SectionName))
-    .Validate(
-        o => Uri.TryCreate(o.Endpoint, UriKind.Absolute, out var uri) && uri.Scheme == Uri.UriSchemeHttps,
-        "GitHubMcp:Endpoint must be an absolute https URL.")
-    .ValidateOnStart();
-
-builder.Services.AddSingleton<ILlmProvider, AnthropicLlmProvider>();
-builder.Services.AddSingleton<IStaticAnalysisClient, StaticAnalysisMcpClient>();
-builder.Services.AddSingleton<IFileContentProvider, GitHubMcpFileContentProvider>();
-builder.Services.AddKeyedSingleton<IReviewAgent, QualityAgent>("quality");
-builder.Services.AddKeyedSingleton<IReviewAgent, SecurityAgent>("security");
-builder.Services.AddKeyedSingleton<IReviewAgent, DocsAgent>("docs");
-builder.Services.AddSingleton<AgentReview.Orchestrator.ReviewOrchestrator>();
-builder.Services.AddSingleton<AgentReview.Orchestrator.ReviewSynthesizer>();
+builder.Services.AddAgentReview(builder.Configuration);
 
 var telemetryEnabled = builder.Configuration.GetSection(AgentReview.Orchestrator.TelemetryOptions.SectionName)
     .Get<AgentReview.Orchestrator.TelemetryOptions>()?.Enabled == true;
-
-builder.Services.AddOptions<AgentReview.Orchestrator.SynthesisOptions>()
-    .Bind(builder.Configuration.GetSection(AgentReview.Orchestrator.SynthesisOptions.SectionName))
-    .Validate(o => o.MaxOutputTokens > 0, "Synthesis:MaxOutputTokens must be positive.")
-    .ValidateOnStart();
-
-builder.Services.AddOptions<AgentReview.Orchestrator.PricingOptions>()
-    .Bind(builder.Configuration.GetSection(AgentReview.Orchestrator.PricingOptions.SectionName))
-    .Validate(o => o.InputPerMillionTokens >= 0 && o.OutputPerMillionTokens >= 0, "Pricing rates must be non-negative.")
-    .ValidateOnStart();
-builder.Services.AddSingleton<AgentReview.Orchestrator.RunSummaryCollector>();
-
-builder.Services.AddOptions<AgentReview.Orchestrator.BudgetOptions>()
-    .Bind(builder.Configuration.GetSection(AgentReview.Orchestrator.BudgetOptions.SectionName))
-    .Validate(o => o.MaxPerReviewUsd >= 0, "Budget:MaxPerReviewUsd must be non-negative.")
-    .ValidateOnStart();
-builder.Services.AddSingleton<AgentReview.Orchestrator.BudgetGuard>();
-builder.Services.AddSingleton<AgentReview.Orchestrator.EvalRunner>();
 
 using var host = builder.Build();
 var logger = host.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Orchestrator");

@@ -15,7 +15,7 @@ namespace AgentReview.Agents.GitHub;
 /// </summary>
 public sealed class GitHubMcpFileContentProvider(
     IOptions<GitHubMcpOptions> options,
-    ILogger<GitHubMcpFileContentProvider> logger) : IFileContentProvider, IAsyncDisposable
+    ILogger<GitHubMcpFileContentProvider> logger) : IFileContentProvider, IPullRequestClient, IAsyncDisposable
 {
     private readonly SemaphoreSlim _connectLock = new(1, 1);
     private readonly Dictionary<string, McpClient> _clients = new(StringComparer.Ordinal);
@@ -68,6 +68,46 @@ public sealed class GitHubMcpFileContentProvider(
         {
             activity?.SetTag("hit", false);
             logger.LogWarning(ex, "Context fetch failed for {Path}; continuing without it", path);
+            return null;
+        }
+    }
+
+    public async Task<string?> GetPullRequestDiffAsync(RepoReference repo, int number, CancellationToken cancellationToken = default)
+    {
+        using var activity = AgentReviewDiagnostics.Source.StartActivity("pr.fetch");
+        activity?.SetTag("pr.number", number);
+        try
+        {
+            var client = await ConnectAsync(repo, cancellationToken);
+            var stopwatch = Stopwatch.StartNew();
+            var result = await client.CallToolAsync(
+                "get_pull_request_diff",
+                new Dictionary<string, object?>
+                {
+                    ["owner"] = repo.Owner,
+                    ["repo"] = repo.Name,
+                    ["pullNumber"] = number,
+                },
+                cancellationToken: cancellationToken);
+
+            if (result.IsError == true)
+            {
+                var detail = result.Content?.OfType<TextContentBlock>().FirstOrDefault()?.Text ?? "no detail";
+                logger.LogWarning("get_pull_request_diff failed for #{Number}: {Detail}", number, detail);
+                return null;
+            }
+
+            var diff = ExtractText(result);
+            logger.LogInformation(
+                "get_pull_request_diff #{Number}: {Chars} chars, {ElapsedMs} ms",
+                number,
+                diff?.Length ?? 0,
+                stopwatch.ElapsedMilliseconds);
+            return diff;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogWarning(ex, "PR diff fetch failed for #{Number}", number);
             return null;
         }
     }

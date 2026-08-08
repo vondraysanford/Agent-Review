@@ -127,7 +127,7 @@ The first artifact is a working MCP server, not an agent. A server drops into Cl
 
 ### Phase 6 — API and Ship
 
-- [ ] ASP.NET Core `/review` endpoint (PR URL or raw diff)
+- [x] ASP.NET Core `/review` endpoint (PR URL or raw diff) (verified 2026-08-08: `dotnet run --project src/AgentReview.Api` binds `http://localhost:5100` (AirPlay owns 5000); `curl -f /health` probes readiness and a POSTed diff came back as 10 ranked findings from all three agents with 1 duplicate merged and the cost summary (`$0.073`, 15.6s) over HTTP. PR mode fetches the diff through the GitHub MCP server's `get_pull_request_diff`. Minimal API with zero new packages; DI extracted to a shared `AddAgentReview` extension both hosts use; unparseable input is a 400 before any spend. Deployment lesson recorded: the Web SDK sets the app's working directory to the project dir, so the MCP server launches from a prebuilt DLL path relative to the project, and `dotnet build` must precede `--no-build` runs for config changes to land. 89 unit tests green)
 - [ ] `docker compose up` brings up orchestrator and MCP servers together
 - [ ] Sample reviews committed to the repo; demo GIF in this README
 - [ ] Optional React dashboard rendering the review and the per-agent trace
