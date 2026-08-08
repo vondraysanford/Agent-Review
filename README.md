@@ -16,7 +16,11 @@ Built in C#/.NET. That choice is the point: agentic tooling is overwhelmingly Py
 
 ## Demo
 
-Claude Code calling the Phase 1 MCP server live: `analyze_csharp` (Roslyn) catches the planted unused variable and unreachable code, `run_semgrep` catches the planted SQL injection.
+One diff in, one ranked review out: the orchestrator fans a planted diff out to the quality, security, and docs agents concurrently (33 seconds of agent work in 14.4s of wall clock in this run), then synthesis dedupes overlapping findings and ranks the rest, keeping exact provenance on every line.
+
+![Three agents reviewing one diff concurrently, synthesized into one ranked review](docs/demo-review.gif)
+
+The Phase 1 foundation, still demoable on its own: Claude Code calling the static-analysis MCP server's tools live, `analyze_csharp` (Roslyn) catching the planted unused variable and unreachable code, `run_semgrep` catching the planted SQL injection.
 
 ![Claude Code calling the AgentReview static-analysis MCP server](docs/demo.gif)
 
