@@ -1,0 +1,28 @@
+{
+  "generatedAtUtc": "2026-08-08T05:28:18.4836830Z",
+  "perAgent": {
+    "quality": {
+      "matched": 10,
+      "agreed": 27,
+      "disagreed": 0,
+      "precision": 1
+    },
+    "security": {
+      "matched": 5,
+      "agreed": 0,
+      "disagreed": 0,
+      "precision": 1
+    },
+    "docs": {
+      "matched": 5,
+      "agreed": 18,
+      "disagreed": 0,
+      "precision": 1
+    }
+  },
+  "humanAgreement": {
+    "agreedOrMatched": 62,
+    "totalReviewed": 62,
+    "rate": 1
+  }
+}

@@ -4,13 +4,13 @@
 [![C#](https://img.shields.io/badge/Language-C%23-239120)](https://learn.microsoft.com/dotnet/csharp/)
 [![MCP](https://img.shields.io/badge/MCP-Model%20Context%20Protocol-blue)](https://modelcontextprotocol.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Status: Phase 4 complete](https://img.shields.io/badge/Status-Phase%204%20complete-brightgreen)](#build-plan)
+[![Status: Phase 5 complete](https://img.shields.io/badge/Status-Phase%205%20complete-brightgreen)](#build-plan)
 
 A multi-agent system where specialized AI agents collaborate to review pull requests. An orchestrator routes a code diff to independent agents (one for code quality, one for security, one for documentation), then synthesizes their findings into a single ranked review. Agents reach real tools (Roslyn analyzers, Semgrep, the GitHub API) through the Model Context Protocol.
 
 Built in C#/.NET. That choice is the point: agentic tooling is overwhelmingly Python, and this project proves the same patterns work in the Microsoft ecosystem. It is the sibling of [DocQuery](https://github.com/vondraysanford/docquery), which made the same argument for RAG.
 
-> **✅ Status: Phase 4 complete.** The orchestrator fans one diff out to three agents concurrently and synthesizes their findings into a single ranked review: arbiter-clustered dedupe, stated survivor rules, exact provenance. Committed sample reviews (per-agent and synthesized) are the proof. Phases 5 and 6 below (evals, API) are still the build plan.
+> **✅ Status: Phase 5 complete.** Three agents review diffs concurrently through MCP tools, synthesis merges them into one ranked review, and the numbers are measured: 100% precision and human agreement, 17/18 planted-bug recall, $0.068 per review, all traced with OpenTelemetry and guarded by an enforced per-review budget. Phase 6 below (API and shipping) is the remaining build plan.
 
 **The checkboxes in this README are an honesty contract. No box gets checked until the feature works end-to-end, verified in a terminal or a running app.**
 
@@ -123,7 +123,7 @@ The first artifact is a working MCP server, not an agent. A server drops into Cl
 - [x] OpenTelemetry tracing: per-agent decisions, tool calls, latency, token usage (verified 2026-08-07: `Telemetry__Enabled=true` on an `--all` run exports the full span tree via the console exporter: `review.fanout` with agents.succeeded, three overlapping `agent.review` spans, `tool.analyze_csharp`/`tool.run_semgrep`, per-call `llm.complete` with input/output token tags, and `synthesis` with duplicates.merged. Instrumentation is in-box ActivitySource in the library, zero new dependencies there; only the Orchestrator host takes OpenTelemetry.Extensions.Hosting + Exporter.Console 1.17.0, off by default so demo output stays clean. 72 unit tests green including listener-based span assertions)
 - [x] Run summary per review: total latency, total tokens, tool-call success rate, cost (verified 2026-08-07: every `--all` run ends with the aggregated line, e.g. `summary: 15.5s fan-out, 4 LLM call(s) (4668 in / 2023 out tokens), 2/2 tool call(s) ok, ~$0.074 at configured rates`. Numbers aggregate in-process from the same OpenTelemetry span tags the exporter consumes, keyed by trace id; token counts are measured, cost is measured tokens times the configured per-MTok rates and labeled as such. 76 unit tests green)
 - [x] Eval harness: seeded PRs with planted bugs; report per-agent precision and agreement with a human review (verified 2026-08-07: 8 seeded cases with 18 labeled planted issues in `evals/cases/`; `--eval` ran the full pipeline over all of them for $0.54 total, finding 15/18 planted issues (strict exact-line matching, misses reported honestly: one docs gap, one mixed-case issue, one multi-file doc mismatch). Machine-computable recall lands in `evals/results/machine.json`; the 45 unmatched findings await agree/disagree verdicts in `worksheet.json`, because precision needs a human, and `--eval --score` then computes final per-agent precision and the agreement rate without further LLM spend. The per-review budget guardrail also landed: worst-case cost ~$1.04 is computed from the caps before any spend and a run over budget refuses to start, proven live with a $0.01 budget. 83 unit tests green)
-- [ ] Results table in this README filled with measured numbers
+- [x] Results table in this README filled with measured numbers (verified 2026-08-08: all six metrics measured from the 8-case eval run and the human-verdict worksheet via `--eval --score`; 100% precision and agreement, 17/18 raw recall with the synthesis-attribution delta reported honestly, $0.068 per review)
 
 ### Phase 6 — API and Ship
 
@@ -134,13 +134,16 @@ The first artifact is a working MCP server, not an agent. A server drops into Cl
 
 ## Results To Report (measured, not estimated)
 
+Measured 2026-08-08 over the 8 seeded eval cases (18 labeled planted issues) with `claude-opus-5`; verdicts by one human reviewer; details in `evals/results/`.
+
 | Metric | Value |
 |---|---|
-| Agreement rate vs. human review on a labeled PR set | _pending_ |
-| Per-agent precision on planted bugs | _pending_ |
-| End-to-end review latency | _pending_ |
-| Tokens and cost per review | _pending_ |
-| MCP tool-call success rate | _pending_ |
+| Agreement rate vs. human review on a labeled PR set | 100% (62/62 findings endorsed: 17 matched planted labels, 45 human-judged) |
+| Per-agent precision on planted bugs | quality 1.00 (37 findings), security 1.00 (5), docs 1.00 (23) |
+| Per-agent recall on planted bugs | quality 8/9, security 5/5, docs 4/4 (17/18 overall; the synthesized review surfaces 15/18 because dedupe re-attributes two catches to another agent's surviving finding) |
+| End-to-end review latency | 13.1s average (10.0 to 15.6s) for three concurrent agents plus synthesis |
+| Tokens and cost per review | ~4,300 in / ~1,850 out average; $0.068 average, $0.54 for all 8 reviews |
+| MCP tool-call success rate | 16/16 (100%) |
 
 ## Demo Decision (made up front)
 

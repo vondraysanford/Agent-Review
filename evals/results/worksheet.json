@@ -6,7 +6,7 @@
     "file": "src/Demo/TemperatureConverter.cs",
     "line": 3,
     "issue": "New public class \u0060TemperatureConverter\u0060 has no XML documentation comment.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "clean",
@@ -15,7 +15,7 @@
     "file": "src/Demo/TemperatureConverter.cs",
     "line": 5,
     "issue": "Public method \u0060CelsiusToFahrenheit\u0060 documents a summary but omits \u0060\u003Cparam\u003E\u0060 and \u0060\u003Creturns\u003E\u0060 documentation.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "clean",
@@ -24,7 +24,7 @@
     "file": "src/Demo/TemperatureConverter.cs",
     "line": 11,
     "issue": "Public method \u0060FahrenheitToCelsius\u0060 documents a summary but omits \u0060\u003Cparam\u003E\u0060 and \u0060\u003Creturns\u003E\u0060 documentation.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "docs-gaps",
@@ -33,7 +33,7 @@
     "file": "src/Demo/CacheEntry.cs",
     "line": 5,
     "issue": "The class is named CacheEntry but it models an entire key/value store holding many entries, which is misleading.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "docs-gaps",
@@ -42,7 +42,7 @@
     "file": "src/Demo/CacheEntry.cs",
     "line": 7,
     "issue": "The XML-less comment states the method returns null for a missing key, but the implementation throws KeyNotFoundException, so the documentation contradicts the behaviour.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "docs-gaps",
@@ -51,7 +51,7 @@
     "file": "src/Demo/CacheEntry.cs",
     "line": 12,
     "issue": "KeyNotFoundException is constructed with the raw key as the exception message, producing an unhelpful error text.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "docs-gaps",
@@ -60,7 +60,7 @@
     "file": "src/Demo/CacheEntry.cs",
     "line": 18,
     "issue": "The private backing field is declared after the method, which is inconsistent with the common C# convention of declaring fields at the top of the type.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "docs-gaps",
@@ -69,7 +69,7 @@
     "file": "src/Demo/CacheEntry.cs",
     "line": 5,
     "issue": "New public type CacheEntry has no XML documentation comment.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "mixed-all",
@@ -78,7 +78,7 @@
     "file": "src/Demo/AccountService.cs",
     "line": 8,
     "issue": "Connection string is hardcoded as a compile-time constant, so environments cannot be changed without a rebuild.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "mixed-all",
@@ -87,7 +87,7 @@
     "file": "src/Demo/AccountService.cs",
     "line": 10,
     "issue": "The doc comment claims the method returns null when the account does not exist, but the method always returns a non-null SqlCommand and never queries anything, so the comment is misleading.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "mixed-all",
@@ -96,7 +96,7 @@
     "file": "src/Demo/AccountService.cs",
     "line": 11,
     "issue": "CA1822: Member \u0027FindAccount\u0027 does not access instance data and can be marked as static",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "mixed-all",
@@ -105,7 +105,7 @@
     "file": "src/Demo/AccountService.cs",
     "line": 14,
     "issue": "The SqlConnection is created but never disposed and ownership is transferred implicitly to the caller via the returned command, which is an easy resource-leak trap.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "mixed-all",
@@ -114,7 +114,7 @@
     "file": "src/Demo/AccountService.cs",
     "line": 15,
     "issue": "\u0060SELECT *\u0060 couples the code to the table\u0027s column layout and returns more data than needed.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "mixed-all",
@@ -123,7 +123,7 @@
     "file": "src/Demo/AccountService.cs",
     "line": 6,
     "issue": "New public type AccountService lacks an XML doc comment.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "mixed-all",
@@ -132,7 +132,7 @@
     "file": "src/Demo/AccountService.cs",
     "line": 11,
     "issue": "Public method FindAccount has no XML documentation comment describing its parameter, return value, or ownership of the returned command/connection.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "mixed-all",
@@ -141,7 +141,7 @@
     "file": "src/Demo/AccountService.cs",
     "line": 11,
     "issue": "The method name FindAccount misleads about behavior: it does not find or return an account, it only constructs a SQL command.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "multi-file",
@@ -150,7 +150,7 @@
     "file": "src/Demo/ReportBuilder.cs",
     "line": 16,
     "issue": "The refund branch adds the tax to the total exactly like the sales branch, which is likely incorrect for a refund and reads as a copy-paste oversight.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "multi-file",
@@ -159,7 +159,7 @@
     "file": "docs/reports.md",
     "line": 3,
     "issue": "Documentation states an 8 percent tax while the code applies 8.25 percent, so the docs and implementation disagree.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "multi-file",
@@ -168,7 +168,7 @@
     "file": "src/Demo/ReportBuilder.cs",
     "line": 8,
     "issue": "The \u0022sales\u0022 and \u0022refund\u0022 branches duplicate the identical tax calculation and return-format logic, differing only in a label string.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "multi-file",
@@ -177,7 +177,7 @@
     "file": "src/Demo/ReportBuilder.cs",
     "line": 8,
     "issue": "Report kinds are compared against bare string literals (\u0022sales\u0022, \u0022refund\u0022), which is fragile and case-sensitive.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "multi-file",
@@ -186,7 +186,7 @@
     "file": "src/Demo/ReportBuilder.cs",
     "line": 8,
     "issue": "The public Build method now has kind-specific tax behavior but carries no XML documentation describing the recognized report kinds or the returned text.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "quality-basics",
@@ -195,7 +195,7 @@
     "file": "src/Demo/InvoicePrinter.cs",
     "line": 7,
     "issue": "CA1822: Member \u0027PrintInvoice\u0027 does not access instance data and can be marked as static",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "quality-basics",
@@ -204,7 +204,7 @@
     "file": "src/Demo/InvoicePrinter.cs",
     "line": 5,
     "issue": "New public type \u0060InvoicePrinter\u0060 has no XML documentation comment.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "quality-basics",
@@ -213,7 +213,7 @@
     "file": "src/Demo/InvoicePrinter.cs",
     "line": 7,
     "issue": "New public method \u0060PrintInvoice\u0060 has no XML documentation comment describing its parameters, return value, or side effect of writing to the console.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "quality-basics",
@@ -222,7 +222,7 @@
     "file": "src/Demo/InvoicePrinter.cs",
     "line": 15,
     "issue": "New public method \u0060PrintReceipt\u0060 has no XML documentation comment describing its parameters, return value, or console output.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "quality-basics",
@@ -231,7 +231,7 @@
     "file": "src/Demo/InvoicePrinter.cs",
     "line": 7,
     "issue": "The name \u0060PrintInvoice\u0060 describes only console output, but the method also computes and returns the taxed total, which is misleading without documentation.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "quality-subtle",
@@ -240,7 +240,7 @@
     "file": "src/Demo/ShippingCalculator.cs",
     "line": 11,
     "issue": "The \u0060zone\u0060 parameter is only validated but never used in the fee calculation, so all zones cost the same \u2014 likely not the intended behaviour for a shipping calculator.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "quality-subtle",
@@ -249,7 +249,7 @@
     "file": "src/Demo/ShippingCalculator.cs",
     "line": 7,
     "issue": "CA1822: Member \u0027Calculate\u0027 does not access instance data and can be marked as static",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "quality-subtle",
@@ -258,7 +258,7 @@
     "file": "src/Demo/ShippingCalculator.cs",
     "line": 23,
     "issue": "The insurance surcharge and per-weight rate logic is duplicated across four return statements.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "quality-subtle",
@@ -267,7 +267,7 @@
     "file": "src/Demo/ShippingCalculator.cs",
     "line": 32,
     "issue": "Invalid inputs (non-positive weight or zone) silently return 0m, hiding caller errors instead of signalling them.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "quality-subtle",
@@ -276,7 +276,7 @@
     "file": "src/Demo/ShippingCalculator.cs",
     "line": 5,
     "issue": "New public type ShippingCalculator has no XML documentation comment.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "quality-subtle",
@@ -285,7 +285,7 @@
     "file": "src/Demo/ShippingCalculator.cs",
     "line": 7,
     "issue": "New public method Calculate has no XML documentation; its parameters, return value and the silent 0 result for non-positive weight or zone are undocumented.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "security-command",
@@ -294,7 +294,7 @@
     "file": "src/Demo/BackupTool.cs",
     "line": 10,
     "issue": "The tar command is built by concatenating the raw \u0060directory\u0060 argument into a shell string, so any directory containing a space or shell metacharacter produces a wrong or broken command.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "security-command",
@@ -303,7 +303,7 @@
     "file": "src/Demo/BackupTool.cs",
     "line": 8,
     "issue": "CA1822: Member \u0027Run\u0027 does not access instance data and can be marked as static",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "security-command",
@@ -312,7 +312,7 @@
     "file": "src/Demo/BackupTool.cs",
     "line": 10,
     "issue": "The shell path \u0060/bin/sh\u0060 and the output file name \u0060backup.tar.gz\u0060 are hardcoded, making the class non-portable and impossible to configure or unit test.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "security-command",
@@ -321,7 +321,7 @@
     "file": "src/Demo/BackupTool.cs",
     "line": 11,
     "issue": "The process exit code is never checked and a null process is silently ignored, so a failed backup looks identical to a successful one to the caller.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "security-command",
@@ -330,7 +330,7 @@
     "file": "src/Demo/BackupTool.cs",
     "line": 9,
     "issue": "\u0060Run\u0060 on \u0060BackupTool\u0060 is a vague name that does not convey what the method does or what it returns.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "security-command",
@@ -339,7 +339,7 @@
     "file": "src/Demo/BackupTool.cs",
     "line": 6,
     "issue": "New public type \u0060BackupTool\u0060 has no XML documentation comment.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "security-command",
@@ -348,7 +348,7 @@
     "file": "src/Demo/BackupTool.cs",
     "line": 8,
     "issue": "New public method \u0060Run\u0060 has no XML documentation for its behavior or its \u0060directory\u0060 parameter.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "security-injection",
@@ -357,7 +357,7 @@
     "file": "src/Demo/CustomerSearch.cs",
     "line": 8,
     "issue": "The database connection string, including credentials, is hardcoded as a compile-time constant instead of being read from configuration, so any environment change requires a recompile.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "security-injection",
@@ -366,7 +366,7 @@
     "file": "src/Demo/CustomerSearch.cs",
     "line": 10,
     "issue": "CA1822: Member \u0027Find\u0027 does not access instance data and can be marked as static",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "security-injection",
@@ -375,7 +375,7 @@
     "file": "src/Demo/CustomerSearch.cs",
     "line": 13,
     "issue": "The SQL statement is assembled by string concatenation and uses \u0060SELECT *\u0060, which makes the query fragile to schema changes and hard to maintain.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "security-injection",
@@ -384,7 +384,7 @@
     "file": "src/Demo/CustomerSearch.cs",
     "line": 1,
     "issue": "\u0060using System;\u0060 appears to be unused by this file.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "security-injection",
@@ -393,7 +393,7 @@
     "file": "src/Demo/CustomerSearch.cs",
     "line": 6,
     "issue": "New public type \u0060CustomerSearch\u0060 has no XML documentation comment.",
-    "verdict": "pending"
+    "verdict": "agree"
   },
   {
     "case": "security-injection",
@@ -402,6 +402,6 @@
     "file": "src/Demo/CustomerSearch.cs",
     "line": 10,
     "issue": "New public method \u0060Find\u0060 has no XML documentation; its parameter, return value, and the fact that the caller receives an undisposed command/connection are undocumented.",
-    "verdict": "pending"
+    "verdict": "agree"
   }
 ]
