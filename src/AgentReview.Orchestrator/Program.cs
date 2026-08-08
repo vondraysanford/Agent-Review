@@ -10,6 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 // Composition root. Today it runs the quality agent on one diff file; in Phase 4 it
 // grows into the concurrent fan-out across all three agents plus synthesis.
@@ -71,6 +73,9 @@ builder.Services.AddKeyedSingleton<IReviewAgent, DocsAgent>("docs");
 builder.Services.AddSingleton<AgentReview.Orchestrator.ReviewOrchestrator>();
 builder.Services.AddSingleton<AgentReview.Orchestrator.ReviewSynthesizer>();
 
+var telemetryEnabled = builder.Configuration.GetSection(AgentReview.Orchestrator.TelemetryOptions.SectionName)
+    .Get<AgentReview.Orchestrator.TelemetryOptions>()?.Enabled == true;
+
 builder.Services.AddOptions<AgentReview.Orchestrator.SynthesisOptions>()
     .Bind(builder.Configuration.GetSection(AgentReview.Orchestrator.SynthesisOptions.SectionName))
     .Validate(o => o.MaxOutputTokens > 0, "Synthesis:MaxOutputTokens must be positive.")
@@ -78,6 +83,16 @@ builder.Services.AddOptions<AgentReview.Orchestrator.SynthesisOptions>()
 
 using var host = builder.Build();
 var logger = host.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Orchestrator");
+
+// The host is used as a DI container, not a running service, so the tracer is
+// built directly; disposing it at process exit flushes the exporter.
+using var tracerProvider = telemetryEnabled
+    ? OpenTelemetry.Sdk.CreateTracerProviderBuilder()
+        .ConfigureResource(r => r.AddService("agentreview-orchestrator"))
+        .AddSource("AgentReview")
+        .AddConsoleExporter()
+        .Build()
+    : null;
 
 string? diffPath = null;
 string? repoArg = null;

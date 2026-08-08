@@ -41,12 +41,19 @@ public sealed class AnthropicLlmProvider(
             },
         };
 
+        using var activity = AgentReviewDiagnostics.Source.StartActivity("llm.complete");
+        activity?.SetTag("llm.model", o.Model);
+
         var stopwatch = Stopwatch.StartNew();
         var response = await _client.Messages.Create(parameters);
 
         var text = string.Concat(
             response.Content.Select(b => b.Value).OfType<TextBlock>().Select(t => t.Text));
         var stopReason = response.StopReason?.ToString();
+
+        activity?.SetTag("llm.input_tokens", response.Usage.InputTokens);
+        activity?.SetTag("llm.output_tokens", response.Usage.OutputTokens);
+        activity?.SetTag("llm.stop_reason", stopReason);
 
         logger.LogInformation(
             "LLM call: model {Model}, {InputTokens} tokens in, {OutputTokens} tokens out, stop reason {StopReason}, {ElapsedMs} ms",

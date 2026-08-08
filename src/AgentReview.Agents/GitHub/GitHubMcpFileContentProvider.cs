@@ -22,6 +22,8 @@ public sealed class GitHubMcpFileContentProvider(
 
     public async Task<string?> GetFileContentAsync(RepoReference repo, string path, CancellationToken cancellationToken = default)
     {
+        using var activity = AgentReviewDiagnostics.Source.StartActivity("context.fetch");
+        activity?.SetTag("file.path", path);
         try
         {
             var client = await ConnectAsync(repo, cancellationToken);
@@ -53,6 +55,8 @@ public sealed class GitHubMcpFileContentProvider(
                 return null;
             }
 
+            activity?.SetTag("content.chars", text.Length);
+            activity?.SetTag("hit", true);
             logger.LogInformation(
                 "get_file_contents {Path}: {Chars} chars, {ElapsedMs} ms",
                 path,
@@ -62,6 +66,7 @@ public sealed class GitHubMcpFileContentProvider(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            activity?.SetTag("hit", false);
             logger.LogWarning(ex, "Context fetch failed for {Path}; continuing without it", path);
             return null;
         }

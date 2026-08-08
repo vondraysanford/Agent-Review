@@ -25,9 +25,12 @@ public sealed class ReviewOrchestrator(IServiceProvider services, ILogger<Review
 
     public async Task<OrchestratedReview> ReviewAsync(ReviewRequest request, CancellationToken cancellationToken = default)
     {
+        using var activity = AgentReviewDiagnostics.Source.StartActivity("review.fanout");
         var total = Stopwatch.StartNew();
         var runs = await Task.WhenAll(AgentNames.Select(name => RunAgentAsync(name, request, cancellationToken)));
         total.Stop();
+        activity?.SetTag("agents.total", runs.Length);
+        activity?.SetTag("agents.succeeded", runs.Count(r => r.Findings is not null));
 
         logger.LogInformation(
             "Fan-out complete: {Succeeded}/{Total} agents succeeded, sum of agent time {SumMs} ms, wall clock {TotalMs} ms",

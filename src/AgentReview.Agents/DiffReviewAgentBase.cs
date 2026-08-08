@@ -53,6 +53,25 @@ public abstract class DiffReviewAgentBase(
 
     public async Task<IReadOnlyList<Finding>> ReviewAsync(ReviewRequest request, CancellationToken cancellationToken = default)
     {
+        using var activity = AgentReviewDiagnostics.Source.StartActivity("agent.review");
+        activity?.SetTag("agent.name", Name);
+        activity?.SetTag("diff.chars", request.Diff.Length);
+
+        try
+        {
+            var findings = await ReviewCoreAsync(request, cancellationToken);
+            activity?.SetTag("findings.count", findings.Count);
+            return findings;
+        }
+        catch (Exception ex)
+        {
+            activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, ex.Message);
+            throw;
+        }
+    }
+
+    private async Task<IReadOnlyList<Finding>> ReviewCoreAsync(ReviewRequest request, CancellationToken cancellationToken)
+    {
         var diff = request.Diff;
         if (diff.Length > options.MaxDiffChars)
         {

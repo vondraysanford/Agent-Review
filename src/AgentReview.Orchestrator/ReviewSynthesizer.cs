@@ -34,6 +34,7 @@ public sealed class ReviewSynthesizer(
 
     public async Task<SynthesizedReview> SynthesizeAsync(OrchestratedReview review, CancellationToken cancellationToken = default)
     {
+        using var activity = AgentReviewDiagnostics.Source.StartActivity("synthesis");
         // Provenance: llm findings are re-stamped with their agent's name so the
         // merged review keeps saying exactly which LLM pass produced each finding.
         var attributed = new List<(string Agent, Finding Finding)>();
@@ -118,6 +119,8 @@ public sealed class ReviewSynthesizer(
             .ThenBy(f => f.Issue, StringComparer.Ordinal)
             .ToList();
 
+        activity?.SetTag("findings.count", ranked.Count);
+        activity?.SetTag("duplicates.merged", duplicates);
         logger.LogInformation(
             "Synthesis: {Total} finding(s) from {Agents} agent(s), {Duplicates} duplicate(s) merged",
             ranked.Count,
@@ -165,6 +168,7 @@ public sealed class ReviewSynthesizer(
         List<(int Id, string Agent, Finding Finding)> candidates,
         CancellationToken cancellationToken)
     {
+        using var activity = AgentReviewDiagnostics.Source.StartActivity("synthesis.arbiter");
         try
         {
             var prompt = new StringBuilder();

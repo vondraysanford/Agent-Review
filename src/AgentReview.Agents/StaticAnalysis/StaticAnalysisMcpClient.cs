@@ -38,6 +38,13 @@ public sealed class StaticAnalysisMcpClient(
         int codeLength,
         CancellationToken cancellationToken)
     {
+        using var activity = AgentReviewDiagnostics.Source.StartActivity($"tool.{toolName}");
+        activity?.SetTag("code.chars", codeLength);
+        if (arguments.TryGetValue("ruleset", out var ruleset))
+        {
+            activity?.SetTag("ruleset", ruleset);
+        }
+
         var client = await ConnectAsync(cancellationToken);
         var stopwatch = Stopwatch.StartNew();
         var result = await client.CallToolAsync(toolName, arguments, cancellationToken: cancellationToken);
@@ -52,6 +59,7 @@ public sealed class StaticAnalysisMcpClient(
             ?? throw new InvalidOperationException($"{toolName} returned no text content.");
         var findings = JsonSerializer.Deserialize<List<StaticAnalysisFinding>>(json, JsonOptions) ?? [];
 
+        activity?.SetTag("findings.count", findings.Count);
         logger.LogInformation(
             "{Tool}: {CodeLength} chars in, {FindingCount} findings out, {ElapsedMs} ms",
             toolName,
